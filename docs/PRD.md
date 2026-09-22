@@ -97,13 +97,15 @@ flowchart TD
 
 **计入打分的提及**：只计 sentiment 为 `negative` 或 `mixed` 的提及。`positive` 和 `neutral` 只做描述性统计。
 
-对每个主题，按「负向提及数」分三条路径：
+**独立风险标志**：`risk_alert` 不是 P0–P3 优先级，也不替代优先级。对每个主题，只要存在任意 sentiment 为 `negative` / `mixed` 的 `safety_discomfort` 提及，或任意 `severity = 3` 的提及，均设置 `risk_alert=true`，不受负向提及数门槛限制。未满足上述高风险条件时，不生成风险警报。
+
+对每个主题，按「负向提及数」及上述高风险条件分三条路径：
 
 | 条件 | 路径 | 输出 |
 |---|---|---|
-| 负向提及 ≥ 2 | **优先级排序** | 计算 P0–P3 |
-| 负向提及 < 2，但主题为 safety_discomfort 或存在 severity = 3 | **风险警报** | risk_alert，并进入人工复核 |
-| 负向提及 < 2，且风险不高 | **证据不足** | 列入报告，但不排序 |
+| 负向提及 ≥ 2 | **优先级排序** | 正常计算 P0–P3；满足上述高风险条件时，同时设置 `risk_alert=true` |
+| 负向提及 < 2，且满足上述高风险条件 | **风险警报** | 不计算 P0–P3，只生成 `risk_alert=true` 并进入人工复核 |
+| 负向提及 < 2，且不满足上述高风险条件 | **证据不足** | 不计算 P0–P3、不生成 `risk_alert`，只标记 `insufficient_evidence`，列入报告但不排序 |
 
 **打分公式**（仅用于优先级排序路径）：
 
@@ -115,8 +117,8 @@ I = 查 config/impact.yaml（按 goal_type 人工设定，写进 decision_log）
 ```
 
 **强制规则**（仅适用于优先级排序路径，报告里要写明触发了哪一条）：
-- safety_discomfort → 最低 P1，同时生成 risk_alert
-- 存在 severity = 3 的提及 → 最低 P1
+- safety_discomfort → 最低 P1（`risk_alert` 按上述独立风险规则生成）
+- 存在 severity = 3 的提及 → 最低 P1（同时按上述独立风险规则设置 `risk_alert=true`）
 - scent_preference → 最高 P2
 
 报告里要展示打分过程，例如：`F2 + S3 + I3 = 8 → P0`。
@@ -142,7 +144,7 @@ I = 查 config/impact.yaml（按 goal_type 人工设定，写进 decision_log）
 1. 数据概览
 2. 问题优先级表（含打分过程）
 3. 风险警报（含「仅用于反馈识别，需人工核实」提示）
-4. 用户证据（每个问题附 2–3 条原话和 feedback_id）
+4. 用户证据（优先级排序中的每个问题附 2–3 条原话和 feedback_id；低频风险警报及证据不足项按实际可用证据展示，不补造证据）
 5. 行动建议（分产品侧和运营侧）
 6. 复购信号分布
 7. 局限说明
@@ -160,13 +162,13 @@ I = 查 config/impact.yaml（按 goal_type 人工设定，写进 decision_log）
 
 - 访谈材料只用于确定主题体系，不进入 dev 或 eval。
 - 按 `respondent_id` 划分数据集：同一个人的反馈不能同时出现在 dev 和 eval 中。
-- 开发步骤 1–7 期间不查看 eval 原文，也不在 eval 上运行系统。
+- 开发步骤 1–7 期间禁止读取、打印、修改 `data/eval/` 下的任何文件，也不在 eval 上运行系统。步骤 8 仅允许评测脚本读取；编码助手默认只看汇总指标，不许根据 eval 原文修改 prompt。
 - eval 必须**先人工标注完毕**，才能运行系统。
 - 原始问卷放在 `data/raw/`，不提交到 git，也不放进公开仓库。
 
 **评测指标（4 项）**：
 1. Topic micro-F1
-2. High-risk Recall：人工标为 safety_discomfort 或 severity = 3 的反馈，系统识别出来的比例
+2. High-risk Recall：人工标注中含任意 negative/mixed 的 safety_discomfort 提及，或任意 severity = 3 提及的反馈，系统识别为风险（`risk_alert=true`）的比例；与是否计算 P0–P3 无关
 3. Evidence Support Rate：带有正确引用的结论数 ÷ 结论总数
 4. 处理时间：人工 vs 系统
 
@@ -208,4 +210,4 @@ Python 3.11+ ｜ Streamlit ｜ pandas ｜ OpenAI 兼容 SDK（环境变量 `LLM_
 |---|---|
 | v1.1 | 新增分类步骤、固定主题表、证据由代码筛选 |
 | v1.2 | 改为加法打分 + 强制规则；多标签，情绪按主题标注；香味拆成两个主题；复购信号独立成字段 |
-| v1.3 | 按 MVP 收缩范围：分析目标改为下拉选择；补全 sentiment 和 repurchase 的枚举值；定义三路径；补全 data_check 规则；评测指标减为 4 项；数据量下调；访谈材料只用于设计主题；复杂功能移入后续清单 |
+| v1.3 | 按 MVP 收缩范围：分析目标改为下拉选择；补全 sentiment 和 repurchase 的枚举值；定义三路径；补全 data_check 规则；评测指标减为 4 项；数据量下调；访谈材料只用于设计主题；复杂功能移入后续清单；澄清 `risk_alert` 为独立风险标志：negative/mixed 的 safety_discomfort 或任意 severity=3 均触发，负向提及 ≥2 时可与 P0–P3 并存，<2 时高风险只报警并人工复核、非高风险只标记 `insufficient_evidence`，均不计算优先级；统一 eval 访问规则（步骤1–7禁止访问，步骤8仅评测脚本读取） |

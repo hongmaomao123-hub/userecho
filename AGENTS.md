@@ -25,7 +25,7 @@ userecho/
   llm.py               LLM 客户端封装（OpenAI 兼容）
 config/                taxonomy.yaml, impact.yaml
 data/dev/              开发数据
-data/eval/             评测集（禁止访问）
+data/eval/             评测集（步骤1–7禁止访问；步骤8仅允许评测脚本读取）
 data/edge/             异常测试数据
 data/raw/              未脱敏原始数据（已在 .gitignore 中，禁止提交）
 tests/
