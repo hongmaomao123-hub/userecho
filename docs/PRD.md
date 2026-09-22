@@ -78,20 +78,29 @@ flowchart TD
 
 | 检查项 | 处理方式 |
 |---|---|
-| 编码 | 依次尝试 `utf-8-sig`、`gbk`；都失败时返回中文错误，页面不能崩溃 |
+| 编码 | 依次尝试 `utf-8-sig`、`gb18030`；都失败时返回中文错误，页面不能崩溃 |
 | 缺少必填列 | `can_proceed = false` |
-| 空文本（null、空字符串、纯空格） | 计入 `empty_text_count`，从样本中排除 |
+| 空 `feedback_id`（缺失、空字符串或纯空白） | 计入 `empty_id_count`，视为无效行并排除 |
+| 空文本（CSV 真正缺失的单元格、空字符串、纯空白） | 计入 `empty_text_count`，从样本中排除；字面字符串「NA」「NULL」视为普通用户文本，不自动删除 |
 | 重复 `feedback_id` | 保留第一条，其余计入 `duplicate_id_count` 并给出警告 |
 | 文本完全相同但 ID 不同 | 计入 `duplicate_text_count`，**只提示，不删除**（短好评重复出现是正常现象） |
 | 短文本（去空格后少于 4 个字） | 计入 `short_text_count`，保留在样本中 |
 | rating 不在 1–5 之间，或不是数字 | 计入 `invalid_rating_count`，不参与评分统计，任务不中断 |
-| 有效反馈为 0 | `can_proceed = false` |
-| 有效反馈 1–4 条 | 只展示数据概览，不做优先级排序 |
-| 有效反馈 5–29 条 | 正常运行，但强制显示「小样本，仅供探索」 |
-| 有效反馈 ≥ 30 条 | 正常分析 |
-| 有效反馈 > 200 条 | 只处理前 200 条，并给出提示 |
+| 有效反馈为 0 | `analysis_mode = blocked`，`can_proceed = false` |
+| 有效反馈 1–4 条 | `analysis_mode = summary_only`，只展示数据概览，不做优先级排序 |
+| 有效反馈 5–29 条 | `analysis_mode = exploratory`，正常运行，但强制显示「小样本，仅供探索」 |
+| 有效反馈 ≥ 30 条 | `analysis_mode = standard`，正常分析 |
+| 清洗后有效反馈 > 200 条 | 仅将前 200 条放入返回的 `cleaned_df`；必须以中文警告说明清洗后有效总数、本次实际处理 200 条、未处理数量，以及只取前 200 条可能受到原始排序影响，禁止静默截断 |
 
-输出字段：`sample_size`、`valid_count`、`missing_fields`、`empty_text_count`、`duplicate_id_count`、`duplicate_text_count`、`short_text_count`、`invalid_rating_count`、`rating_distribution`、`sample_level`（none / overview_only / exploratory / normal）、`warnings[]`、`can_proceed`
+输入为 CSV 原始字节，输出为 `cleaned_df` 和结构化 `report`。完整读取 CSV 后，先按 `feedback_id` 保留第一条，再排除空 ID，最后排除空文本；完成全量清洗后，按原始顺序保留最多 200 条。
+
+`report` 输出字段：`raw_sample_size`、`valid_sample_size`、`missing_fields`、`empty_id_count`、`empty_text_count`、`duplicate_id_count`、`duplicate_text_count`、`short_text_count`、`invalid_rating_count`、`rating_distribution`、`analysis_mode`（blocked / summary_only / exploratory / standard）、`warnings[]`、`errors[]`、`can_proceed`。
+
+- `raw_sample_size`：成功解析的 CSV 原始数据行数，不含表头；无法解析时为 0。
+- `valid_sample_size`：最终实际返回给后续流程的 `cleaned_df` 行数，最大为 200。截断前有效总数和未处理数量另写入警告，不作为后续统计分母。
+- ID 去重、空 ID、空文本的排除计数按上述顺序覆盖全量数据，各阶段只统计当时仍保留的行。
+- 重复文本、短文本、无效评分及评分分布基于最终返回的 `cleaned_df`；无效评分置为空值，不参与评分统计，反馈本身保留。
+- `analysis_mode` 根据 `valid_sample_size` 判定；文件为空、解码或解析失败、缺少必填字段、有效反馈为 0 时为 `blocked`，且 `can_proceed = false`，`errors[]` 提供中文错误；其他模式为 `can_proceed = true`。
 
 ## 6. 优先级与三路径
 
@@ -125,7 +134,7 @@ I = 查 config/impact.yaml（按 goal_type 人工设定，写进 decision_log）
 
 ## 7. 限额
 
-- 单次最多处理 200 条反馈
+- 完整读取并清洗上传 CSV，单次只向后续流程返回前 200 条有效反馈；超出部分必须按第 5 节显示中文截断警告
 - 分类每批 25 条
 - 每批失败最多重试 2 次；仍失败的条目进入人工复核清单
 - 整个任务最多调用 LLM 15 次；达到上限立即停止，并如实报告已完成的部分
@@ -182,7 +191,7 @@ Python 3.11+ ｜ Streamlit ｜ pandas ｜ OpenAI 兼容 SDK（环境变量 `LLM_
 
 ## 12. 完成标准（达到后停止开发，转入简历包装）
 
-- [ ] 能读取中文 CSV（包括 GBK 编码）
+- [ ] 能读取中文 CSV（包括 GB18030 编码）
 - [ ] 能完成主题、情绪、严重度分类
 - [ ] 能输出优先级、风险警报、原文证据
 - [ ] 能生成产品侧和运营侧建议
@@ -210,4 +219,4 @@ Python 3.11+ ｜ Streamlit ｜ pandas ｜ OpenAI 兼容 SDK（环境变量 `LLM_
 |---|---|
 | v1.1 | 新增分类步骤、固定主题表、证据由代码筛选 |
 | v1.2 | 改为加法打分 + 强制规则；多标签，情绪按主题标注；香味拆成两个主题；复购信号独立成字段 |
-| v1.3 | 按 MVP 收缩范围：分析目标改为下拉选择；补全 sentiment 和 repurchase 的枚举值；定义三路径；补全 data_check 规则；评测指标减为 4 项；数据量下调；访谈材料只用于设计主题；复杂功能移入后续清单；澄清 `risk_alert` 为独立风险标志：negative/mixed 的 safety_discomfort 或任意 severity=3 均触发，负向提及 ≥2 时可与 P0–P3 并存，<2 时高风险只报警并人工复核、非高风险只标记 `insufficient_evidence`，均不计算优先级；统一 eval 访问规则（步骤1–7禁止访问，步骤8仅评测脚本读取） |
+| v1.3 | 按 MVP 收缩范围：分析目标改为下拉选择；补全 sentiment 和 repurchase 的枚举值；定义三路径；补全 data_check 规则；评测指标减为 4 项；数据量下调；访谈材料只用于设计主题；复杂功能移入后续清单；澄清 `risk_alert` 为独立风险标志：negative/mixed 的 safety_discomfort 或任意 severity=3 均触发，负向提及 ≥2 时可与 P0–P3 并存，<2 时高风险只报警并人工复核、非高风险只标记 `insufficient_evidence`，均不计算优先级；统一 eval 访问规则（步骤1–7禁止访问，步骤8仅评测脚本读取）；第一阶段审查修复进行契约对齐，统一 `raw_sample_size`、`valid_sample_size`、`analysis_mode` 及其四种枚举，实际有效样本量与返回数据一致且最多 200 条，截断必须提示数量与排序影响；明确空 ID 排除、真正缺失文本与字面 NA/NULL 的区别、编码依次使用 utf-8-sig 和 gb18030 |
