@@ -1,0 +1,138 @@
+version: "1.3"
+source: docs/PRD.md
+scope: 主题边界说明；未决边界见 docs/annotation_guide.md，不作为已批准的新规则。
+topics:
+  scent_mismatch:
+    name: 香味与描述不符
+    definition: 实际气味与商品描述或宣传明显不一致。
+    include:
+      - 明确对比商品宣称的香型与实际闻到的气味。
+      - 明确指出实际香味与商品描述不一致。
+    exclude:
+      - 仅表达个人喜恶，没有商品描述或宣传的对照依据。
+      - 仅反馈留香时长、扩香范围或浓淡。
+    adjacent_topics:
+      - scent_preference
+      - longevity_diffusion
+  scent_preference:
+    name: 个人香味偏好
+    definition: 对气味本身的喜欢或不喜欢，没有指出与商品描述不符。
+    include:
+      - 喜欢或不喜欢某种香调、前调或后调。
+      - 香味符合描述，但不符合个人喜好。
+    exclude:
+      - 仅指出实际气味与宣传描述不符。
+      - 明确报告头晕、过敏或身体刺激等不适。
+      - 仅评价留香、扩香或浓淡效果。
+    adjacent_topics:
+      - scent_mismatch
+      - safety_discomfort
+      - longevity_diffusion
+  longevity_diffusion:
+    name: 留香与扩香效果
+    definition: 香味持续时长、扩散效果及过淡或过浓的使用感受。
+    include:
+      - 留香时间长短、气味消散快慢。
+      - 扩香强弱、可闻范围及过淡或过浓。
+    exclude:
+      - 仅评价香型是否喜欢。
+      - 仅报告身体不适而没有独立描述留香或扩香效果。
+    adjacent_topics:
+      - scent_preference
+      - safety_discomfort
+      - appearance_usage
+  packaging_leak:
+    name: 包装破损或漏液
+    definition: 产品包装的破损、密封问题或漏液情况。
+    include:
+      - 包装破裂、瓶体破损或漏液。
+      - 对包装完整性、密封性及有无漏液的明确评价。
+    exclude:
+      - 只有配送时效或配送服务评价，没有破损或漏液证据。
+      - 只有瓶身造型、美观或操作便利性评价。
+    adjacent_topics:
+      - logistics
+      - appearance_usage
+      - safety_discomfort
+  safety_discomfort:
+    name: 使用安全与身体不适
+    definition: 使用相关的头晕、过敏、刺激等身体不适，以及儿童或宠物安全顾虑。
+    include:
+      - 明确报告使用时头晕、过敏、眼鼻或皮肤等身体刺激。
+      - 明确表达儿童或宠物使用环境的安全顾虑。
+    exclude:
+      - 单纯不喜欢某种香味，没有身体不适或安全顾虑。
+      - 只有气味过浓或过淡，没有独立的身体不适或安全描述。
+    adjacent_topics:
+      - scent_preference
+      - longevity_diffusion
+      - packaging_leak
+  price_value:
+    name: 价格与性价比
+    definition: 对价格高低及价格与体验是否相称的评价。
+    include:
+      - 贵、便宜、值得或不值得等价格及性价比评价。
+      - 明确涉及降价或价格条件的反馈。
+    exclude:
+      - 只有复购意愿，没有价格或性价比内容。
+      - 仅描述客服退款处理过程，没有价格评价。
+    adjacent_topics:
+      - service
+      - other
+  logistics:
+    name: 物流与配送
+    definition: 运输、送达时效及配送过程的体验。
+    include:
+      - 发货、运输、送达速度的评价。
+      - 配送过程或配送服务的明确问题。
+    exclude:
+      - 仅报告包装破损或漏液，未说明配送过程问题。
+      - 仅评价商家客服沟通或售后处理。
+    adjacent_topics:
+      - packaging_leak
+      - service
+  appearance_usage:
+    name: 外观与使用体验
+    definition: 瓶身设计、扩香器具及操作是否方便的体验。
+    include:
+      - 瓶身造型、美观及设计评价。
+      - 扩香器具操作、开启或使用便利性的评价。
+    exclude:
+      - 仅涉及包装破损或漏液。
+      - 仅涉及留香时长或扩香强弱。
+      - 明确的安全问题或身体不适。
+    adjacent_topics:
+      - packaging_leak
+      - longevity_diffusion
+      - safety_discomfort
+  service:
+    name: 客服与售后
+    definition: 商家客服沟通、响应及售后处理的体验。
+    include:
+      - 客服态度、回复速度或问题处理评价。
+      - 退换货、退款等售后服务过程评价。
+    exclude:
+      - 只有配送时效问题，没有客服或售后内容。
+      - 只有价格高低或性价比评价。
+    adjacent_topics:
+      - logistics
+      - price_value
+  other:
+    name: 其他或无法判断
+    definition: 无法归入现有具体主题、无法判断主题，或按 PRD 短文本规则必须归入此类的反馈。
+    include:
+      - 去掉空格后少于 4 个字的反馈，按 PRD 一律归入此类。
+      - 没有足够信息判断具体主题的反馈。
+      - 内容不属于其余九个主题。
+    exclude:
+      - 不触发短文本规则且有明确证据归入具体主题的内容。
+    adjacent_topics:
+      - scent_mismatch
+      - scent_preference
+      - longevity_diffusion
+      - packaging_leak
+      - safety_discomfort
+      - price_value
+      - logistics
+      - appearance_usage
+      - service
