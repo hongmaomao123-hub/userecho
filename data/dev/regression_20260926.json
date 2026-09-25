@@ -1,0 +1,2023 @@
+{
+  "purpose": "synthetic calibration/dev regression, not formal accuracy or F1",
+  "started_at": "2026-09-26T00:40:17.011974+08:00",
+  "model": "deepseek-chat",
+  "temperature": 0,
+  "system_prompt_sha256": "07305caa0fb7a416ad5174c7fa0f137751d0c2d0a06794819ccb6c11566a18ff",
+  "file_sha256_before": {
+    "userecho/steps/classify.py": "9cc4bdd08807a4bc28cb6fe067b46f2dcb8e7e1e2e4fd090ba84d6c112016c34",
+    "userecho/steps/topic_provenance.py": "f3d214d0f7f003c8fea71f59b7bb706acc5903c96e2b7e4f0c904858c7e671c7",
+    "userecho/steps/topic_selection.py": "dc3c08d66913ef01d85c9c17848b314fe0481bbc06b5a5687c87dbe21070f35e",
+    "userecho/classification_schema.py": "f97d27aab943a8d67a604e5277b791843d80e2f726474d34ac3671b16ef9a09b",
+    "userecho/classification_prompt.py": "cdbdc2567fc44e6801fa80b5ad37b11f1a9e479a045407b3b4997d43604d764b",
+    "config/taxonomy.yaml": "02cdb47b6c9275b71bb75b6a26a9a2311696c85ae91cff9302324c9c06c3dea8",
+    "data/dev/guided_examples_round1.csv": "6ff8ed30cf023d22650dfe1af01401f186c0f2ea0256f4283d57554b8be2dd77",
+    "data/dev/blind_annotation_round2.csv": "95335f5728dab92f87d68b1dc3ac727fa8330387caabcd1945296243173efacb"
+  },
+  "input_fingerprint_method": "SHA-256 of UTF-8 JSON, sorted keys, compact separators, ordered rows",
+  "runs": [
+    {
+      "run_id": "regression-20260926-A",
+      "started_at": "2026-09-26T00:40:17.015658+08:00",
+      "batch": "A",
+      "input_count": 1,
+      "classification_count": 1,
+      "review_count": 0,
+      "unprocessed_count": 0,
+      "call_count": 1,
+      "prompt_tokens": 2814,
+      "completion_tokens": 261,
+      "total_tokens": 3075,
+      "elapsed_seconds": 1.8150451250039623,
+      "system_prompt_sha256": "07305caa0fb7a416ad5174c7fa0f137751d0c2d0a06794819ccb6c11566a18ff",
+      "input_sha256": "a6a2d80b5b47434a9550e7a71e099226ac17b61b0f9e7500287695bc2c99c64a",
+      "inputs": [
+        {
+          "feedback_id": "SYN-BR1-08",
+          "feedback_text": "才插两根藤条就觉得冲，闻着难受，说不清是味道不喜欢还是太浓了。"
+        }
+      ],
+      "classifications": [
+        {
+          "feedback_id": "SYN-BR1-08",
+          "topics": [
+            {
+              "code": "longevity_diffusion",
+              "sentiment": "negative",
+              "severity": 2,
+              "source_span": "才插两根藤条就觉得冲",
+              "mention_type": "asserted"
+            },
+            {
+              "code": "scent_preference",
+              "sentiment": "negative",
+              "severity": 1,
+              "source_span": "闻着难受",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        }
+      ],
+      "review_items": [],
+      "unprocessed": [],
+      "provenance_events": [
+        {
+          "feedback_id": "SYN-BR1-08",
+          "code": "scent_preference",
+          "reason": "dropped_uncertain_duplicate"
+        },
+        {
+          "feedback_id": "SYN-BR1-08",
+          "code": "longevity_diffusion",
+          "reason": "dropped_uncertain_duplicate"
+        }
+      ],
+      "calls": [
+        {
+          "batch": 1,
+          "attempt": 1,
+          "prompt_tokens": 2814,
+          "completion_tokens": 261,
+          "total_tokens": 3075,
+          "elapsed_seconds": 1.8105719169980148,
+          "error": null
+        }
+      ],
+      "errors": [],
+      "api_responses": [
+        {
+          "response_model": "deepseek-flash",
+          "response_id": "d69ba2cd-e63c-4d0c-8b69-adb47156e01d",
+          "payload": {
+            "results": [
+              {
+                "feedback_id": "SYN-BR1-08",
+                "topics": [
+                  {
+                    "code": "longevity_diffusion",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "才插两根藤条就觉得冲",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "negative",
+                    "severity": 1,
+                    "source_span": "闻着难受",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "negative",
+                    "severity": 1,
+                    "source_span": "说不清是味道不喜欢还是太浓了",
+                    "mention_type": "uncertain"
+                  },
+                  {
+                    "code": "longevity_diffusion",
+                    "sentiment": "negative",
+                    "severity": 1,
+                    "source_span": "说不清是味道不喜欢还是太浓了",
+                    "mention_type": "uncertain"
+                  }
+                ],
+                "repurchase_signal": "none"
+              }
+            ]
+          },
+          "json_parseable": true
+        }
+      ],
+      "checks": {
+        "exclusive_exhaustive_partition": true,
+        "outcome_counts": {
+          "SYN-BR1-08": 1
+        },
+        "source_spans": [
+          {
+            "feedback_id": "SYN-BR1-08",
+            "code": "longevity_diffusion",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR1-08",
+            "code": "scent_preference",
+            "valid": true
+          }
+        ],
+        "all_final_source_spans_valid": true,
+        "targets": [
+          {
+            "feedback_id": "SYN-BR1-08",
+            "expected": [
+              [
+                "longevity_diffusion",
+                "negative",
+                2
+              ]
+            ],
+            "actual": [
+              [
+                "longevity_diffusion",
+                "negative",
+                2
+              ],
+              [
+                "scent_preference",
+                "negative",
+                1
+              ]
+            ],
+            "passed": false
+          }
+        ],
+        "safety_consultations": [],
+        "raw_candidate_span_count": 4,
+        "invalid_raw_source_spans": [],
+        "raw_schema_failures": [],
+        "filter_reason_records_present": true
+      }
+    },
+    {
+      "run_id": "regression-20260926-B",
+      "started_at": "2026-09-26T00:40:18.843984+08:00",
+      "batch": "B",
+      "input_count": 5,
+      "classification_count": 4,
+      "review_count": 1,
+      "unprocessed_count": 0,
+      "call_count": 1,
+      "prompt_tokens": 2989,
+      "completion_tokens": 589,
+      "total_tokens": 3578,
+      "elapsed_seconds": 2.366699999998673,
+      "system_prompt_sha256": "07305caa0fb7a416ad5174c7fa0f137751d0c2d0a06794819ccb6c11566a18ff",
+      "input_sha256": "fd7a8af288be65fcc08b436c5c147d8383c70f164deb4409ce244d4201603f58",
+      "inputs": [
+        {
+          "feedback_id": "SYN-BR1-04",
+          "feedback_text": "放在卧室里香味能留到第二天，这点很好，但走到门口就几乎闻不到了，扩散范围让我有些失望。"
+        },
+        {
+          "feedback_id": "SYN-BR1-08",
+          "feedback_text": "才插两根藤条就觉得冲，闻着难受，说不清是味道不喜欢还是太浓了。"
+        },
+        {
+          "feedback_id": "SYN-BR1-10",
+          "feedback_text": "家里有猫，放这款香薰会不会有影响？目前还没拆封，想先问清楚。"
+        },
+        {
+          "feedback_id": "SYN-BR2-04",
+          "feedback_text": "请教一下，这款衣物香氛用于三岁孩子的外套有没有年龄限制？说明书里我没找到相关信息。"
+        },
+        {
+          "feedback_id": "SYN-BR2-08",
+          "feedback_text": "试香纸上明明挺柔和，到衣服上就像洗衣粉，这是味道变了还是我鼻子太挑？反正总觉得哪里不对。"
+        }
+      ],
+      "classifications": [
+        {
+          "feedback_id": "SYN-BR1-04",
+          "topics": [
+            {
+              "code": "longevity_diffusion",
+              "sentiment": "mixed",
+              "severity": 1,
+              "source_span": "放在卧室里香味能留到第二天，这点很好，但走到门口就几乎闻不到了，扩散范围让我有些失望。",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-08",
+          "topics": [
+            {
+              "code": "longevity_diffusion",
+              "sentiment": "negative",
+              "severity": 2,
+              "source_span": "才插两根藤条就觉得冲",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-10",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "neutral",
+              "severity": null,
+              "source_span": "家里有猫，放这款香薰会不会有影响？目前还没拆封，想先问清楚。",
+              "mention_type": "consultation"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-04",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "neutral",
+              "severity": null,
+              "source_span": "请教一下，这款衣物香氛用于三岁孩子的外套有没有年龄限制？说明书里我没找到相关信息。",
+              "mention_type": "consultation"
+            }
+          ],
+          "repurchase_signal": "none"
+        }
+      ],
+      "review_items": [
+        {
+          "feedback_id": "SYN-BR2-08",
+          "reason": "uncertain_only_requires_review"
+        }
+      ],
+      "unprocessed": [],
+      "provenance_events": [
+        {
+          "feedback_id": "SYN-BR1-08",
+          "code": "scent_preference",
+          "reason": "dropped_uncertain_topic"
+        }
+      ],
+      "calls": [
+        {
+          "batch": 1,
+          "attempt": 1,
+          "prompt_tokens": 2989,
+          "completion_tokens": 589,
+          "total_tokens": 3578,
+          "elapsed_seconds": 2.358226417003607,
+          "error": null
+        }
+      ],
+      "errors": [],
+      "api_responses": [
+        {
+          "response_model": "deepseek-flash",
+          "response_id": "f1c0c451-b800-4f61-b457-f964fc05c2c0",
+          "payload": {
+            "results": [
+              {
+                "feedback_id": "SYN-BR1-04",
+                "topics": [
+                  {
+                    "code": "longevity_diffusion",
+                    "sentiment": "mixed",
+                    "severity": 1,
+                    "source_span": "放在卧室里香味能留到第二天，这点很好，但走到门口就几乎闻不到了，扩散范围让我有些失望。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR1-08",
+                "topics": [
+                  {
+                    "code": "longevity_diffusion",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "才插两根藤条就觉得冲",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "闻着难受，说不清是味道不喜欢还是太浓了。",
+                    "mention_type": "uncertain"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR1-10",
+                "topics": [
+                  {
+                    "code": "safety_discomfort",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "家里有猫，放这款香薰会不会有影响？目前还没拆封，想先问清楚。",
+                    "mention_type": "consultation"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-04",
+                "topics": [
+                  {
+                    "code": "safety_discomfort",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "请教一下，这款衣物香氛用于三岁孩子的外套有没有年龄限制？说明书里我没找到相关信息。",
+                    "mention_type": "consultation"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-08",
+                "topics": [
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "negative",
+                    "severity": 1,
+                    "source_span": "试香纸上明明挺柔和，到衣服上就像洗衣粉，这是味道变了还是我鼻子太挑？反正总觉得哪里不对。",
+                    "mention_type": "uncertain"
+                  }
+                ],
+                "repurchase_signal": "none"
+              }
+            ]
+          },
+          "json_parseable": true
+        }
+      ],
+      "checks": {
+        "exclusive_exhaustive_partition": true,
+        "outcome_counts": {
+          "SYN-BR1-04": 1,
+          "SYN-BR1-08": 1,
+          "SYN-BR1-10": 1,
+          "SYN-BR2-04": 1,
+          "SYN-BR2-08": 1
+        },
+        "source_spans": [
+          {
+            "feedback_id": "SYN-BR1-04",
+            "code": "longevity_diffusion",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR1-08",
+            "code": "longevity_diffusion",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR1-10",
+            "code": "safety_discomfort",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR2-04",
+            "code": "safety_discomfort",
+            "valid": true
+          }
+        ],
+        "all_final_source_spans_valid": true,
+        "targets": [
+          {
+            "feedback_id": "SYN-BR1-08",
+            "expected": [
+              [
+                "longevity_diffusion",
+                "negative",
+                2
+              ]
+            ],
+            "actual": [
+              [
+                "longevity_diffusion",
+                "negative",
+                2
+              ]
+            ],
+            "passed": true
+          },
+          {
+            "feedback_id": "SYN-BR1-10",
+            "expected": [
+              [
+                "safety_discomfort",
+                "neutral",
+                null
+              ]
+            ],
+            "actual": [
+              [
+                "safety_discomfort",
+                "neutral",
+                null
+              ]
+            ],
+            "passed": true
+          },
+          {
+            "feedback_id": "SYN-BR2-04",
+            "expected": [
+              [
+                "safety_discomfort",
+                "neutral",
+                null
+              ]
+            ],
+            "actual": [
+              [
+                "safety_discomfort",
+                "neutral",
+                null
+              ]
+            ],
+            "passed": true
+          },
+          {
+            "feedback_id": "SYN-BR2-08",
+            "expected": [
+              [
+                "scent_preference",
+                "negative",
+                1
+              ]
+            ],
+            "actual": null,
+            "passed": false
+          }
+        ],
+        "safety_consultations": [
+          {
+            "feedback_id": "SYN-BR1-10",
+            "would_trigger_risk_by_prd": false,
+            "note": "Audit of final topics only; classification module does not implement risk_alert output."
+          },
+          {
+            "feedback_id": "SYN-BR2-04",
+            "would_trigger_risk_by_prd": false,
+            "note": "Audit of final topics only; classification module does not implement risk_alert output."
+          }
+        ],
+        "raw_candidate_span_count": 6,
+        "invalid_raw_source_spans": [],
+        "raw_schema_failures": [],
+        "filter_reason_records_present": true
+      }
+    },
+    {
+      "run_id": "regression-20260926-C",
+      "started_at": "2026-09-26T00:40:21.224901+08:00",
+      "batch": "C",
+      "input_count": 10,
+      "classification_count": 9,
+      "review_count": 1,
+      "unprocessed_count": 0,
+      "call_count": 1,
+      "prompt_tokens": 3172,
+      "completion_tokens": 1182,
+      "total_tokens": 4354,
+      "elapsed_seconds": 3.651019625001936,
+      "system_prompt_sha256": "07305caa0fb7a416ad5174c7fa0f137751d0c2d0a06794819ccb6c11566a18ff",
+      "input_sha256": "27a9abe054c1772616242e0bfe64381dacc5834df6179fa5b5d82f970405b0a9",
+      "inputs": [
+        {
+          "feedback_id": "SYN-BR1-01",
+          "feedback_text": "这款喷头每次按下去都很顺手，单手也能操作，我挺满意的。"
+        },
+        {
+          "feedback_id": "SYN-BR1-02",
+          "feedback_text": "页面说是清新的绿茶味，打开却是一股奶糖味，和介绍差得有点远。"
+        },
+        {
+          "feedback_id": "SYN-BR1-03",
+          "feedback_text": "送得比预计早一天，不过拆开时瓶口周围都是液体，找客服当天就安排了换货，这点挺省心。"
+        },
+        {
+          "feedback_id": "SYN-BR1-04",
+          "feedback_text": "放在卧室里香味能留到第二天，这点很好，但走到门口就几乎闻不到了，扩散范围让我有些失望。"
+        },
+        {
+          "feedback_id": "SYN-BR1-05",
+          "feedback_text": "这一小瓶卖这个价我觉得不太值，等下次有折扣再考虑回购。"
+        },
+        {
+          "feedback_id": "SYN-BR1-06",
+          "feedback_text": "喷在手腕上没多久就开始发痒，还起了一片红点，我洗掉后没敢再用，以后也不会买了。"
+        },
+        {
+          "feedback_id": "SYN-BR1-07",
+          "feedback_text": "朋友说这款很清爽，我原本也这么期待，实际闻着偏甜，不是我平时喜欢的感觉。"
+        },
+        {
+          "feedback_id": "SYN-BR1-08",
+          "feedback_text": "才插两根藤条就觉得冲，闻着难受，说不清是味道不喜欢还是太浓了。"
+        },
+        {
+          "feedback_id": "SYN-BR1-09",
+          "feedback_text": "还行吧"
+        },
+        {
+          "feedback_id": "SYN-BR1-10",
+          "feedback_text": "家里有猫，放这款香薰会不会有影响？目前还没拆封，想先问清楚。"
+        }
+      ],
+      "classifications": [
+        {
+          "feedback_id": "SYN-BR1-01",
+          "topics": [
+            {
+              "code": "appearance_usage",
+              "sentiment": "positive",
+              "severity": null,
+              "source_span": "这款喷头每次按下去都很顺手，单手也能操作，我挺满意的。",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-02",
+          "topics": [
+            {
+              "code": "scent_mismatch",
+              "sentiment": "negative",
+              "severity": 2,
+              "source_span": "页面说是清新的绿茶味，打开却是一股奶糖味，和介绍差得有点远。",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-03",
+          "topics": [
+            {
+              "code": "logistics",
+              "sentiment": "positive",
+              "severity": null,
+              "source_span": "送得比预计早一天",
+              "mention_type": "asserted"
+            },
+            {
+              "code": "packaging_leak",
+              "sentiment": "negative",
+              "severity": 2,
+              "source_span": "拆开时瓶口周围都是液体",
+              "mention_type": "asserted"
+            },
+            {
+              "code": "service",
+              "sentiment": "positive",
+              "severity": null,
+              "source_span": "找客服当天就安排了换货，这点挺省心。",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-04",
+          "topics": [
+            {
+              "code": "longevity_diffusion",
+              "sentiment": "mixed",
+              "severity": 1,
+              "source_span": "放在卧室里香味能留到第二天，这点很好，但走到门口就几乎闻不到了，扩散范围让我有些失望。",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-05",
+          "topics": [
+            {
+              "code": "price_value",
+              "sentiment": "negative",
+              "severity": 2,
+              "source_span": "这一小瓶卖这个价我觉得不太值，等下次有折扣再考虑回购。",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "conditional"
+        },
+        {
+          "feedback_id": "SYN-BR1-06",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "negative",
+              "severity": 3,
+              "source_span": "喷在手腕上没多久就开始发痒，还起了一片红点，我洗掉后没敢再用，以后也不会买了。",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "negative"
+        },
+        {
+          "feedback_id": "SYN-BR1-07",
+          "topics": [
+            {
+              "code": "scent_preference",
+              "sentiment": "negative",
+              "severity": 1,
+              "source_span": "实际闻着偏甜，不是我平时喜欢的感觉。",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-09",
+          "topics": [
+            {
+              "code": "other",
+              "sentiment": "neutral",
+              "severity": null,
+              "source_span": "还行吧",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-10",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "neutral",
+              "severity": null,
+              "source_span": "家里有猫，放这款香薰会不会有影响？目前还没拆封，想先问清楚。",
+              "mention_type": "consultation"
+            }
+          ],
+          "repurchase_signal": "none"
+        }
+      ],
+      "review_items": [
+        {
+          "feedback_id": "SYN-BR1-08",
+          "reason": "uncertain_only_requires_review"
+        }
+      ],
+      "unprocessed": [],
+      "provenance_events": [],
+      "calls": [
+        {
+          "batch": 1,
+          "attempt": 1,
+          "prompt_tokens": 3172,
+          "completion_tokens": 1182,
+          "total_tokens": 4354,
+          "elapsed_seconds": 3.6417048329967656,
+          "error": null
+        }
+      ],
+      "errors": [],
+      "api_responses": [
+        {
+          "response_model": "deepseek-flash",
+          "response_id": "e0d91416-0eec-4fb4-8cf5-131d527742ae",
+          "payload": {
+            "results": [
+              {
+                "feedback_id": "SYN-BR1-01",
+                "topics": [
+                  {
+                    "code": "appearance_usage",
+                    "sentiment": "positive",
+                    "severity": null,
+                    "source_span": "这款喷头每次按下去都很顺手，单手也能操作，我挺满意的。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR1-02",
+                "topics": [
+                  {
+                    "code": "scent_mismatch",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "页面说是清新的绿茶味，打开却是一股奶糖味，和介绍差得有点远。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR1-03",
+                "topics": [
+                  {
+                    "code": "logistics",
+                    "sentiment": "positive",
+                    "severity": null,
+                    "source_span": "送得比预计早一天",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "packaging_leak",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "拆开时瓶口周围都是液体",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "service",
+                    "sentiment": "positive",
+                    "severity": null,
+                    "source_span": "找客服当天就安排了换货，这点挺省心。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR1-04",
+                "topics": [
+                  {
+                    "code": "longevity_diffusion",
+                    "sentiment": "mixed",
+                    "severity": 1,
+                    "source_span": "放在卧室里香味能留到第二天，这点很好，但走到门口就几乎闻不到了，扩散范围让我有些失望。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR1-05",
+                "topics": [
+                  {
+                    "code": "price_value",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "这一小瓶卖这个价我觉得不太值，等下次有折扣再考虑回购。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "conditional"
+              },
+              {
+                "feedback_id": "SYN-BR1-06",
+                "topics": [
+                  {
+                    "code": "safety_discomfort",
+                    "sentiment": "negative",
+                    "severity": 3,
+                    "source_span": "喷在手腕上没多久就开始发痒，还起了一片红点，我洗掉后没敢再用，以后也不会买了。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "negative"
+              },
+              {
+                "feedback_id": "SYN-BR1-07",
+                "topics": [
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "negative",
+                    "severity": 1,
+                    "source_span": "实际闻着偏甜，不是我平时喜欢的感觉。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR1-08",
+                "topics": [
+                  {
+                    "code": "longevity_diffusion",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "才插两根藤条就觉得冲，闻着难受，说不清是味道不喜欢还是太浓了。",
+                    "mention_type": "uncertain"
+                  },
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "才插两根藤条就觉得冲，闻着难受，说不清是味道不喜欢还是太浓了。",
+                    "mention_type": "uncertain"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR1-09",
+                "topics": [
+                  {
+                    "code": "other",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "还行吧",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR1-10",
+                "topics": [
+                  {
+                    "code": "safety_discomfort",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "家里有猫，放这款香薰会不会有影响？目前还没拆封，想先问清楚。",
+                    "mention_type": "consultation"
+                  }
+                ],
+                "repurchase_signal": "none"
+              }
+            ]
+          },
+          "json_parseable": true
+        }
+      ],
+      "checks": {
+        "exclusive_exhaustive_partition": true,
+        "outcome_counts": {
+          "SYN-BR1-01": 1,
+          "SYN-BR1-02": 1,
+          "SYN-BR1-03": 1,
+          "SYN-BR1-04": 1,
+          "SYN-BR1-05": 1,
+          "SYN-BR1-06": 1,
+          "SYN-BR1-07": 1,
+          "SYN-BR1-09": 1,
+          "SYN-BR1-10": 1,
+          "SYN-BR1-08": 1
+        },
+        "source_spans": [
+          {
+            "feedback_id": "SYN-BR1-01",
+            "code": "appearance_usage",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR1-02",
+            "code": "scent_mismatch",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR1-03",
+            "code": "logistics",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR1-03",
+            "code": "packaging_leak",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR1-03",
+            "code": "service",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR1-04",
+            "code": "longevity_diffusion",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR1-05",
+            "code": "price_value",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR1-06",
+            "code": "safety_discomfort",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR1-07",
+            "code": "scent_preference",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR1-09",
+            "code": "other",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR1-10",
+            "code": "safety_discomfort",
+            "valid": true
+          }
+        ],
+        "all_final_source_spans_valid": true,
+        "targets": [
+          {
+            "feedback_id": "SYN-BR1-08",
+            "expected": [
+              [
+                "longevity_diffusion",
+                "negative",
+                2
+              ]
+            ],
+            "actual": null,
+            "passed": false
+          },
+          {
+            "feedback_id": "SYN-BR1-10",
+            "expected": [
+              [
+                "safety_discomfort",
+                "neutral",
+                null
+              ]
+            ],
+            "actual": [
+              [
+                "safety_discomfort",
+                "neutral",
+                null
+              ]
+            ],
+            "passed": true
+          }
+        ],
+        "safety_consultations": [
+          {
+            "feedback_id": "SYN-BR1-10",
+            "would_trigger_risk_by_prd": false,
+            "note": "Audit of final topics only; classification module does not implement risk_alert output."
+          }
+        ],
+        "raw_candidate_span_count": 13,
+        "invalid_raw_source_spans": [],
+        "raw_schema_failures": [],
+        "filter_reason_records_present": true
+      }
+    },
+    {
+      "run_id": "regression-20260926-D",
+      "started_at": "2026-09-26T00:40:24.892322+08:00",
+      "batch": "D",
+      "input_count": 1,
+      "classification_count": 1,
+      "review_count": 0,
+      "unprocessed_count": 0,
+      "call_count": 1,
+      "prompt_tokens": 2820,
+      "completion_tokens": 139,
+      "total_tokens": 2959,
+      "elapsed_seconds": 1.2917850829981035,
+      "system_prompt_sha256": "07305caa0fb7a416ad5174c7fa0f137751d0c2d0a06794819ccb6c11566a18ff",
+      "input_sha256": "c078a91d9134d7f82d873a5aa6086674ea87a45a35d8f2251ce30697525abad1",
+      "inputs": [
+        {
+          "feedback_id": "SYN-BR2-08",
+          "feedback_text": "试香纸上明明挺柔和，到衣服上就像洗衣粉，这是味道变了还是我鼻子太挑？反正总觉得哪里不对。"
+        }
+      ],
+      "classifications": [
+        {
+          "feedback_id": "SYN-BR2-08",
+          "topics": [
+            {
+              "code": "scent_preference",
+              "sentiment": "negative",
+              "severity": 1,
+              "source_span": "试香纸上明明挺柔和，到衣服上就像洗衣粉",
+              "mention_type": "asserted"
+            },
+            {
+              "code": "other",
+              "sentiment": "negative",
+              "severity": 1,
+              "source_span": "反正总觉得哪里不对。",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        }
+      ],
+      "review_items": [],
+      "unprocessed": [],
+      "provenance_events": [
+        {
+          "feedback_id": "SYN-BR2-08",
+          "code": "scent_preference",
+          "reason": "dropped_uncertain_duplicate"
+        }
+      ],
+      "calls": [
+        {
+          "batch": 1,
+          "attempt": 1,
+          "prompt_tokens": 2820,
+          "completion_tokens": 139,
+          "total_tokens": 2959,
+          "elapsed_seconds": 1.2820162089992664,
+          "error": null
+        }
+      ],
+      "errors": [],
+      "api_responses": [
+        {
+          "response_model": "deepseek-flash",
+          "response_id": "3dcfefe0-d9bb-4f14-a45e-c60557e37be7",
+          "payload": {
+            "results": [
+              {
+                "feedback_id": "SYN-BR2-08",
+                "topics": [
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "negative",
+                    "severity": 1,
+                    "source_span": "试香纸上明明挺柔和，到衣服上就像洗衣粉",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "这是味道变了还是我鼻子太挑？",
+                    "mention_type": "uncertain"
+                  },
+                  {
+                    "code": "other",
+                    "sentiment": "negative",
+                    "severity": 1,
+                    "source_span": "反正总觉得哪里不对。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              }
+            ]
+          },
+          "json_parseable": true
+        }
+      ],
+      "checks": {
+        "exclusive_exhaustive_partition": true,
+        "outcome_counts": {
+          "SYN-BR2-08": 1
+        },
+        "source_spans": [
+          {
+            "feedback_id": "SYN-BR2-08",
+            "code": "scent_preference",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR2-08",
+            "code": "other",
+            "valid": true
+          }
+        ],
+        "all_final_source_spans_valid": true,
+        "targets": [
+          {
+            "feedback_id": "SYN-BR2-08",
+            "expected": [
+              [
+                "scent_preference",
+                "negative",
+                1
+              ]
+            ],
+            "actual": [
+              [
+                "scent_preference",
+                "negative",
+                1
+              ],
+              [
+                "other",
+                "negative",
+                1
+              ]
+            ],
+            "passed": false
+          }
+        ],
+        "safety_consultations": [],
+        "raw_candidate_span_count": 3,
+        "invalid_raw_source_spans": [],
+        "raw_schema_failures": [],
+        "filter_reason_records_present": true
+      }
+    },
+    {
+      "run_id": "regression-20260926-E",
+      "started_at": "2026-09-26T00:40:26.199549+08:00",
+      "batch": "E",
+      "input_count": 10,
+      "classification_count": 9,
+      "review_count": 1,
+      "unprocessed_count": 0,
+      "call_count": 3,
+      "prompt_tokens": 9561,
+      "completion_tokens": 3316,
+      "total_tokens": 12877,
+      "elapsed_seconds": 10.595135916999425,
+      "system_prompt_sha256": "07305caa0fb7a416ad5174c7fa0f137751d0c2d0a06794819ccb6c11566a18ff",
+      "input_sha256": "d4092d03aea7ea54c649df65545eeca0a80a05eb16421657b72676fe40c440f8",
+      "inputs": [
+        {
+          "feedback_id": "SYN-BR2-01",
+          "feedback_text": "忘了"
+        },
+        {
+          "feedback_id": "SYN-BR2-02",
+          "feedback_text": "空瓶先不扔，留着记型号，下一瓶还买这个海盐味，正合我口味。"
+        },
+        {
+          "feedback_id": "SYN-BR2-03",
+          "feedback_text": "售后这次让我心情挺复杂：接待的人一直很耐心，可同一张订单让我补了三遍照片，来回折腾得烦。"
+        },
+        {
+          "feedback_id": "SYN-BR2-04",
+          "feedback_text": "请教一下，这款衣物香氛用于三岁孩子的外套有没有年龄限制？说明书里我没找到相关信息。"
+        },
+        {
+          "feedback_id": "SYN-BR2-05",
+          "feedback_text": "礼盒摆出来确实漂亮。可把内衬拿走才发现底下湿了一圈，香水已经渗出来了，送人的计划只好取消。"
+        },
+        {
+          "feedback_id": "SYN-BR2-06",
+          "feedback_text": "先不囤了。以后要是能做到早上喷、下班还有味道，我才考虑再下单，现在中午就闻不见了。"
+        },
+        {
+          "feedback_id": "SYN-BR2-07",
+          "feedback_text": "昨晚点了十来分钟蜡烛，我开始不停打喷嚏，喉咙也有灼痛感，赶紧灭掉去阳台透了气。"
+        },
+        {
+          "feedback_id": "SYN-BR2-08",
+          "feedback_text": "试香纸上明明挺柔和，到衣服上就像洗衣粉，这是味道变了还是我鼻子太挑？反正总觉得哪里不对。"
+        },
+        {
+          "feedback_id": "SYN-BR2-09",
+          "feedback_text": "为了周末聚会提前一周买的，聚会结束两天才收到。下回不会再从这家买香薰了。"
+        },
+        {
+          "feedback_id": "SYN-BR2-10",
+          "feedback_text": "算下来每支不到十块，比我之前用的便宜不少，这个价格挺实在。"
+        }
+      ],
+      "classifications": [
+        {
+          "feedback_id": "SYN-BR2-01",
+          "topics": [
+            {
+              "code": "other",
+              "sentiment": "neutral",
+              "severity": null,
+              "source_span": "忘了",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-02",
+          "topics": [
+            {
+              "code": "scent_preference",
+              "sentiment": "positive",
+              "severity": null,
+              "source_span": "正合我口味",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "positive"
+        },
+        {
+          "feedback_id": "SYN-BR2-03",
+          "topics": [
+            {
+              "code": "service",
+              "sentiment": "mixed",
+              "severity": 2,
+              "source_span": "售后这次让我心情挺复杂：接待的人一直很耐心，可同一张订单让我补了三遍照片，来回折腾得烦。",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-04",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "neutral",
+              "severity": null,
+              "source_span": "请教一下，这款衣物香氛用于三岁孩子的外套有没有年龄限制？",
+              "mention_type": "consultation"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-05",
+          "topics": [
+            {
+              "code": "packaging_leak",
+              "sentiment": "negative",
+              "severity": 2,
+              "source_span": "可把内衬拿走才发现底下湿了一圈，香水已经渗出来了",
+              "mention_type": "asserted"
+            },
+            {
+              "code": "appearance_usage",
+              "sentiment": "positive",
+              "severity": null,
+              "source_span": "礼盒摆出来确实漂亮。",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-07",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "negative",
+              "severity": 3,
+              "source_span": "我开始不停打喷嚏，喉咙也有灼痛感",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-08",
+          "topics": [
+            {
+              "code": "scent_preference",
+              "sentiment": "negative",
+              "severity": 1,
+              "source_span": "到衣服上就像洗衣粉",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-09",
+          "topics": [
+            {
+              "code": "logistics",
+              "sentiment": "negative",
+              "severity": 2,
+              "source_span": "聚会结束两天才收到",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "negative"
+        },
+        {
+          "feedback_id": "SYN-BR2-10",
+          "topics": [
+            {
+              "code": "price_value",
+              "sentiment": "positive",
+              "severity": null,
+              "source_span": "算下来每支不到十块，比我之前用的便宜不少，这个价格挺实在。",
+              "mention_type": "asserted"
+            }
+          ],
+          "repurchase_signal": "none"
+        }
+      ],
+      "review_items": [
+        {
+          "feedback_id": "SYN-BR2-06",
+          "reason": "分类失败：字段、主题或严重度未通过校验。"
+        }
+      ],
+      "unprocessed": [],
+      "provenance_events": [
+        {
+          "feedback_id": "SYN-BR2-08",
+          "code": "scent_preference",
+          "reason": "dropped_uncertain_duplicate"
+        }
+      ],
+      "calls": [
+        {
+          "batch": 1,
+          "attempt": 1,
+          "prompt_tokens": 3187,
+          "completion_tokens": 1100,
+          "total_tokens": 4287,
+          "elapsed_seconds": 3.546429000001808,
+          "error": "部分反馈未通过分类校验。"
+        },
+        {
+          "batch": 1,
+          "attempt": 2,
+          "prompt_tokens": 3187,
+          "completion_tokens": 1108,
+          "total_tokens": 4295,
+          "elapsed_seconds": 3.5255537500052014,
+          "error": "部分反馈未通过分类校验。"
+        },
+        {
+          "batch": 1,
+          "attempt": 3,
+          "prompt_tokens": 3187,
+          "completion_tokens": 1108,
+          "total_tokens": 4295,
+          "elapsed_seconds": 3.5129429590015206,
+          "error": "部分反馈未通过分类校验。"
+        }
+      ],
+      "errors": [],
+      "api_responses": [
+        {
+          "response_model": "deepseek-flash",
+          "response_id": "2d8590a4-8f97-4bb4-bce5-9de5b38d2381",
+          "payload": {
+            "results": [
+              {
+                "feedback_id": "SYN-BR2-01",
+                "topics": [
+                  {
+                    "code": "other",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "忘了",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-02",
+                "topics": [
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "positive",
+                    "severity": null,
+                    "source_span": "正合我口味",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "positive"
+              },
+              {
+                "feedback_id": "SYN-BR2-03",
+                "topics": [
+                  {
+                    "code": "service",
+                    "sentiment": "mixed",
+                    "severity": 2,
+                    "source_span": "售后这次让我心情挺复杂：接待的人一直很耐心，可同一张订单让我补了三遍照片，来回折腾得烦。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-04",
+                "topics": [
+                  {
+                    "code": "safety_discomfort",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "请教一下，这款衣物香氛用于三岁孩子的外套有没有年龄限制？",
+                    "mention_type": "consultation"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-05",
+                "topics": [
+                  {
+                    "code": "packaging_leak",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "可把内衬拿走才发现底下湿了一圈，香水已经渗出来了",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "appearance_usage",
+                    "sentiment": "positive",
+                    "severity": null,
+                    "source_span": "礼盒摆出来确实漂亮。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-06",
+                "topics": [
+                  {
+                    "code": "longevity_diffusion",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "现在中午就闻不见了",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "longevity_diffusion",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "以后要是能做到早上喷、下班还有味道，我才考虑再下单",
+                    "mention_type": "conditional"
+                  }
+                ],
+                "repurchase_signal": "conditional"
+              },
+              {
+                "feedback_id": "SYN-BR2-07",
+                "topics": [
+                  {
+                    "code": "safety_discomfort",
+                    "sentiment": "negative",
+                    "severity": 3,
+                    "source_span": "我开始不停打喷嚏，喉咙也有灼痛感",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-08",
+                "topics": [
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "negative",
+                    "severity": 1,
+                    "source_span": "到衣服上就像洗衣粉",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "这是味道变了还是我鼻子太挑？",
+                    "mention_type": "uncertain"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-09",
+                "topics": [
+                  {
+                    "code": "logistics",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "聚会结束两天才收到",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "negative"
+              },
+              {
+                "feedback_id": "SYN-BR2-10",
+                "topics": [
+                  {
+                    "code": "price_value",
+                    "sentiment": "positive",
+                    "severity": null,
+                    "source_span": "算下来每支不到十块，比我之前用的便宜不少，这个价格挺实在。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              }
+            ]
+          },
+          "json_parseable": true
+        },
+        {
+          "response_model": "deepseek-flash",
+          "response_id": "337f7a99-c9aa-421c-b673-d796d08993de",
+          "payload": {
+            "results": [
+              {
+                "feedback_id": "SYN-BR2-01",
+                "topics": [
+                  {
+                    "code": "other",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "忘了",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-02",
+                "topics": [
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "positive",
+                    "severity": null,
+                    "source_span": "正合我口味",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "positive"
+              },
+              {
+                "feedback_id": "SYN-BR2-03",
+                "topics": [
+                  {
+                    "code": "service",
+                    "sentiment": "mixed",
+                    "severity": 2,
+                    "source_span": "售后这次让我心情挺复杂：接待的人一直很耐心，可同一张订单让我补了三遍照片，来回折腾得烦。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-04",
+                "topics": [
+                  {
+                    "code": "safety_discomfort",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "请教一下，这款衣物香氛用于三岁孩子的外套有没有年龄限制？",
+                    "mention_type": "consultation"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-05",
+                "topics": [
+                  {
+                    "code": "packaging_leak",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "可把内衬拿走才发现底下湿了一圈，香水已经渗出来了",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "appearance_usage",
+                    "sentiment": "positive",
+                    "severity": null,
+                    "source_span": "礼盒摆出来确实漂亮。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-06",
+                "topics": [
+                  {
+                    "code": "longevity_diffusion",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "现在中午就闻不见了",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "longevity_diffusion",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "以后要是能做到早上喷、下班还有味道，我才考虑再下单",
+                    "mention_type": "conditional"
+                  }
+                ],
+                "repurchase_signal": "conditional"
+              },
+              {
+                "feedback_id": "SYN-BR2-07",
+                "topics": [
+                  {
+                    "code": "safety_discomfort",
+                    "sentiment": "negative",
+                    "severity": 3,
+                    "source_span": "我开始不停打喷嚏，喉咙也有灼痛感",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-08",
+                "topics": [
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "negative",
+                    "severity": 1,
+                    "source_span": "到衣服上就像洗衣粉",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "这是味道变了还是我鼻子太挑？",
+                    "mention_type": "uncertain"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-09",
+                "topics": [
+                  {
+                    "code": "logistics",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "为了周末聚会提前一周买的，聚会结束两天才收到。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "negative"
+              },
+              {
+                "feedback_id": "SYN-BR2-10",
+                "topics": [
+                  {
+                    "code": "price_value",
+                    "sentiment": "positive",
+                    "severity": null,
+                    "source_span": "算下来每支不到十块，比我之前用的便宜不少，这个价格挺实在。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              }
+            ]
+          },
+          "json_parseable": true
+        },
+        {
+          "response_model": "deepseek-flash",
+          "response_id": "4abe3b90-8fa4-4137-b00e-ea67c3384cba",
+          "payload": {
+            "results": [
+              {
+                "feedback_id": "SYN-BR2-01",
+                "topics": [
+                  {
+                    "code": "other",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "忘了",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-02",
+                "topics": [
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "positive",
+                    "severity": null,
+                    "source_span": "正合我口味",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "positive"
+              },
+              {
+                "feedback_id": "SYN-BR2-03",
+                "topics": [
+                  {
+                    "code": "service",
+                    "sentiment": "mixed",
+                    "severity": 2,
+                    "source_span": "售后这次让我心情挺复杂：接待的人一直很耐心，可同一张订单让我补了三遍照片，来回折腾得烦。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-04",
+                "topics": [
+                  {
+                    "code": "safety_discomfort",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "请教一下，这款衣物香氛用于三岁孩子的外套有没有年龄限制？",
+                    "mention_type": "consultation"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-05",
+                "topics": [
+                  {
+                    "code": "packaging_leak",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "可把内衬拿走才发现底下湿了一圈，香水已经渗出来了",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "appearance_usage",
+                    "sentiment": "positive",
+                    "severity": null,
+                    "source_span": "礼盒摆出来确实漂亮。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-06",
+                "topics": [
+                  {
+                    "code": "longevity_diffusion",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "现在中午就闻不见了",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "longevity_diffusion",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "以后要是能做到早上喷、下班还有味道，我才考虑再下单",
+                    "mention_type": "conditional"
+                  }
+                ],
+                "repurchase_signal": "conditional"
+              },
+              {
+                "feedback_id": "SYN-BR2-07",
+                "topics": [
+                  {
+                    "code": "safety_discomfort",
+                    "sentiment": "negative",
+                    "severity": 3,
+                    "source_span": "我开始不停打喷嚏，喉咙也有灼痛感",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-08",
+                "topics": [
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "negative",
+                    "severity": 1,
+                    "source_span": "到衣服上就像洗衣粉",
+                    "mention_type": "asserted"
+                  },
+                  {
+                    "code": "scent_preference",
+                    "sentiment": "neutral",
+                    "severity": null,
+                    "source_span": "这是味道变了还是我鼻子太挑？",
+                    "mention_type": "uncertain"
+                  }
+                ],
+                "repurchase_signal": "none"
+              },
+              {
+                "feedback_id": "SYN-BR2-09",
+                "topics": [
+                  {
+                    "code": "logistics",
+                    "sentiment": "negative",
+                    "severity": 2,
+                    "source_span": "为了周末聚会提前一周买的，聚会结束两天才收到。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "negative"
+              },
+              {
+                "feedback_id": "SYN-BR2-10",
+                "topics": [
+                  {
+                    "code": "price_value",
+                    "sentiment": "positive",
+                    "severity": null,
+                    "source_span": "算下来每支不到十块，比我之前用的便宜不少，这个价格挺实在。",
+                    "mention_type": "asserted"
+                  }
+                ],
+                "repurchase_signal": "none"
+              }
+            ]
+          },
+          "json_parseable": true
+        }
+      ],
+      "checks": {
+        "exclusive_exhaustive_partition": true,
+        "outcome_counts": {
+          "SYN-BR2-01": 1,
+          "SYN-BR2-02": 1,
+          "SYN-BR2-03": 1,
+          "SYN-BR2-04": 1,
+          "SYN-BR2-05": 1,
+          "SYN-BR2-07": 1,
+          "SYN-BR2-08": 1,
+          "SYN-BR2-09": 1,
+          "SYN-BR2-10": 1,
+          "SYN-BR2-06": 1
+        },
+        "source_spans": [
+          {
+            "feedback_id": "SYN-BR2-01",
+            "code": "other",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR2-02",
+            "code": "scent_preference",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR2-03",
+            "code": "service",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR2-04",
+            "code": "safety_discomfort",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR2-05",
+            "code": "packaging_leak",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR2-05",
+            "code": "appearance_usage",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR2-07",
+            "code": "safety_discomfort",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR2-08",
+            "code": "scent_preference",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR2-09",
+            "code": "logistics",
+            "valid": true
+          },
+          {
+            "feedback_id": "SYN-BR2-10",
+            "code": "price_value",
+            "valid": true
+          }
+        ],
+        "all_final_source_spans_valid": true,
+        "targets": [
+          {
+            "feedback_id": "SYN-BR2-04",
+            "expected": [
+              [
+                "safety_discomfort",
+                "neutral",
+                null
+              ]
+            ],
+            "actual": [
+              [
+                "safety_discomfort",
+                "neutral",
+                null
+              ]
+            ],
+            "passed": true
+          },
+          {
+            "feedback_id": "SYN-BR2-08",
+            "expected": [
+              [
+                "scent_preference",
+                "negative",
+                1
+              ]
+            ],
+            "actual": [
+              [
+                "scent_preference",
+                "negative",
+                1
+              ]
+            ],
+            "passed": true
+          }
+        ],
+        "safety_consultations": [
+          {
+            "feedback_id": "SYN-BR2-04",
+            "would_trigger_risk_by_prd": false,
+            "note": "Audit of final topics only; classification module does not implement risk_alert output."
+          }
+        ],
+        "raw_candidate_span_count": 39,
+        "invalid_raw_source_spans": [],
+        "raw_schema_failures": [
+          {
+            "attempt": 1,
+            "feedback_id": "SYN-BR2-06",
+            "errors": [
+              {
+                "type": "literal_error",
+                "loc": [
+                  "topics",
+                  1,
+                  "mention_type"
+                ]
+              }
+            ]
+          },
+          {
+            "attempt": 2,
+            "feedback_id": "SYN-BR2-06",
+            "errors": [
+              {
+                "type": "literal_error",
+                "loc": [
+                  "topics",
+                  1,
+                  "mention_type"
+                ]
+              }
+            ]
+          },
+          {
+            "attempt": 3,
+            "feedback_id": "SYN-BR2-06",
+            "errors": [
+              {
+                "type": "literal_error",
+                "loc": [
+                  "topics",
+                  1,
+                  "mention_type"
+                ]
+              }
+            ]
+          }
+        ],
+        "filter_reason_records_present": true
+      }
+    }
+  ],
+  "files_unchanged": true,
+  "prompt_unchanged": true,
+  "summary": {
+    "target_acceptance_passed": false,
+    "all_outcomes_partitioned": true,
+    "all_final_spans_valid": true,
+    "all_raw_spans_valid": true,
+    "risk_check_limitation": "Only checked against PRD risk conditions using final classifications; downstream risk-alert pipeline is not implemented.",
+    "filter_record_limitation": "Whole-feedback uncertain-only reviews have machine-readable review reason, but no per-topic dropped events; raw candidates saved for audit."
+  }
+}

@@ -11,12 +11,12 @@ from typing import Any
 
 import pandas as pd
 from dotenv import dotenv_values
-from openai import OpenAI
+from openai import OpenAI, APIConnectionError, APIStatusError
 from pydantic import ValidationError
 
 from userecho.classification_prompt import build_messages, build_system_prompt
 from userecho.classification_schema import FeedbackClassification, RawFeedbackClassification
-from userecho.steps.topic_selection import select_topics
+from userecho.steps.topic_provenance import filter_topics
 
 
 LOGGER = logging.getLogger(__name__)
@@ -32,6 +32,7 @@ class ClassificationResult:
     classifications: list[FeedbackClassification] = field(default_factory=list)
     review_items: list[dict[str, str]] = field(default_factory=list)
     unprocessed: list[dict[str, str]] = field(default_factory=list)
+    provenance_events: list[dict[str, str]] = field(default_factory=list)
     calls: list[dict[str, Any]] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     elapsed_seconds: float = 0.0
@@ -62,8 +63,13 @@ def create_client() -> tuple[OpenAI, str]:
                   max_retries=0, timeout=30.0), values["LLM_MODEL"]
 
 
-def parse_batch(content: str, expected_ids: list[str]) -> tuple[dict[str, FeedbackClassification], dict[str, str]]:
+def parse_batch(content: str, feedback_texts: dict[str, str]) -> tuple[
+    dict[str, FeedbackClassification], dict[str, str], dict[str, str], list[dict[str, str]]
+]:
     """Validate items independently; malformed envelopes fail only this attempt."""
+    expected_ids = list(feedback_texts)
+    reviews: dict[str, str] = {}
+    events: list[dict[str, str]] = []
     failed = {fid: "分类失败：返回缺少该反馈。" for fid in expected_ids}
     passed: dict[str, FeedbackClassification] = {}
     try:
@@ -71,7 +77,7 @@ def parse_batch(content: str, expected_ids: list[str]) -> tuple[dict[str, Feedba
         if not isinstance(payload, dict) or set(payload) != {"results"} or not isinstance(payload["results"], list):
             raise ValueError("invalid envelope")
     except (ValueError, TypeError):
-        return passed, {fid: "分类失败：返回内容不是规定的 JSON 结构。" for fid in expected_ids}
+        return passed, {fid: "分类失败：返回内容不是规定的 JSON 结构。" for fid in expected_ids}, reviews, events
     entries = payload["results"]
     counts = Counter(item.get("feedback_id") for item in entries
                      if isinstance(item, dict) and isinstance(item.get("feedback_id"), str))
@@ -86,17 +92,22 @@ def parse_batch(content: str, expected_ids: list[str]) -> tuple[dict[str, Feedba
             continue
         try:
             raw = RawFeedbackClassification.model_validate(item)
+            evidence = filter_topics(raw, feedback_texts[fid])
+            events.extend(evidence.events)
+            if evidence.review_reason:
+                reviews[fid] = evidence.review_reason
+                continue
             final = FeedbackClassification(
-                feedback_id=raw.feedback_id, topics=select_topics(raw.topics),
+                feedback_id=raw.feedback_id, topics=[t.model_dump() for t in evidence.topics],
                 repurchase_signal=raw.repurchase_signal,
             )
         except (ValidationError, ValueError):
             failed[fid] = "分类失败：字段、主题或严重度未通过校验。"
         else:
             passed[fid] = final
-    for fid in passed:
+    for fid in passed.keys() | reviews.keys():
         failed.pop(fid)
-    return passed, failed
+    return passed, failed, reviews, events
 
 
 def classify(cleaned_df: pd.DataFrame, batch_size: int = 25, *, client: Any = None,
@@ -105,7 +116,8 @@ def classify(cleaned_df: pd.DataFrame, batch_size: int = 25, *, client: Any = No
 
     Each invocation owns a single call budget shared by all its batches. A valid
     item is retained at its first successful attempt, even if later batch retries
-    omit it or return invalid content for it. Retries resend the whole batch.
+    omit it or return invalid content for it. Terminal semantic reviews are
+    excluded from later retry requests.
     The optional client/model are injection points for offline tests.
     """
     started = time.perf_counter()
@@ -140,6 +152,7 @@ def classify(cleaned_df: pd.DataFrame, batch_size: int = 25, *, client: Any = No
             result.unprocessed = [{"feedback_id": fid, "reason": message} for fid in ids]
             return result
         successes: dict[str, FeedbackClassification] = {}
+        terminal: set[str] = set()
         for start in range(0, len(records), batch_size):
             batch = records[start:start + batch_size]
             batch_ids = [row["feedback_id"] for row in batch]
@@ -148,7 +161,8 @@ def classify(cleaned_df: pd.DataFrame, batch_size: int = 25, *, client: Any = No
             for attempt in range(1, 4):
                 if result.call_count >= CALL_LIMIT:
                     break
-                messages = build_messages(batch, system_prompt)
+                active_batch = [row for row in batch if row["feedback_id"] not in terminal]
+                messages = build_messages(active_batch, system_prompt)
                 if os.environ.get("USERECHO_DEBUG_PROMPT") == "1":
                     LOGGER.info("完整分类 Prompt：\n%s",
                                 json.dumps(messages, ensure_ascii=False, indent=2))
@@ -169,11 +183,18 @@ def classify(cleaned_df: pd.DataFrame, batch_size: int = 25, *, client: Any = No
                         if type(value) is int and value >= 0:
                             call[key] = value
                     content = response.choices[0].message.content
-                    passed, failed = parse_batch(content, batch_ids)
+                    passed, failed, reviews, events = parse_batch(
+                        content, {row["feedback_id"]: row["feedback_text"] for row in active_batch}
+                    )
+                    result.provenance_events.extend(e for e in events if e["feedback_id"] not in successes)
+                    for fid, reason in reviews.items():
+                        if fid not in successes:
+                            terminal.add(fid)
+                            result.review_items.append({"feedback_id": fid, "reason": reason})
                     for fid, classification in passed.items():
                         successes.setdefault(fid, classification)
                     pending = {fid: failed.get(fid, "分类失败：未获得有效结果。")
-                               for fid in batch_ids if fid not in successes}
+                               for fid in batch_ids if fid not in successes and fid not in terminal}
                     if pending:
                         call["error"] = "部分反馈未通过分类校验。"
                 except Exception as exc:
@@ -182,13 +203,25 @@ def classify(cleaned_df: pd.DataFrame, batch_size: int = 25, *, client: Any = No
                     safe_status = status if type(status) is int and 100 <= status <= 599 else "未知"
                     LOGGER.warning("LLM 调用失败：%s/%s", type(exc).__name__, safe_status)
                     call["error"] = "LLM 调用失败或响应异常，请稍后重试。"
-                    pending = {fid: call["error"] for fid in batch_ids if fid not in successes}
+                    pending = {fid: call["error"] for fid in batch_ids if fid not in successes and fid not in terminal}
+                    retryable = (
+                        isinstance(exc, (APIConnectionError, TimeoutError, ConnectionError,
+                                         ValidationError, AttributeError, IndexError, TypeError))
+                        or isinstance(exc, APIStatusError) and (
+                            status in (408, 409, 429) or type(status) is int and 500 <= status <= 599
+                        )
+                    )
+                    if not retryable:
+                        for fid in pending:
+                            terminal.add(fid)
+                            result.review_items.append({"feedback_id": fid, "reason": call["error"]})
+                        pending = {}
                 finally:
                     call["elapsed_seconds"] = time.perf_counter() - call_started
                     LOGGER.info(
                         "LLM 调用：batch_size=%s call_count=%s model=%r elapsed_seconds=%.3f "
                         "prompt_tokens=%s completion_tokens=%s total_tokens=%s",
-                        len(batch), result.call_count, model, call["elapsed_seconds"],
+                        len(active_batch), result.call_count, model, call["elapsed_seconds"],
                         call["prompt_tokens"], call["completion_tokens"], call["total_tokens"],
                     )
                 if not pending:
