@@ -22,7 +22,7 @@ from userecho.steps.topic_selection import select_topics
 LOGGER = logging.getLogger(__name__)
 if not LOGGER.handlers:
     LOGGER.addHandler(logging.StreamHandler())
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.INFO)
 ROOT = Path(__file__).resolve().parents[2]
 CALL_LIMIT = 15
 
@@ -149,8 +149,9 @@ def classify(cleaned_df: pd.DataFrame, batch_size: int = 25, *, client: Any = No
                 if result.call_count >= CALL_LIMIT:
                     break
                 messages = build_messages(batch, system_prompt)
-                LOGGER.debug("完整分类 Prompt（批次 %s，尝试 %s）：\n%s", start // batch_size + 1,
-                             attempt, json.dumps(messages, ensure_ascii=False, indent=2))
+                if os.environ.get("USERECHO_DEBUG_PROMPT") == "1":
+                    LOGGER.info("完整分类 Prompt：\n%s",
+                                json.dumps(messages, ensure_ascii=False, indent=2))
                 call = {"batch": start // batch_size + 1, "attempt": attempt,
                         "prompt_tokens": None, "completion_tokens": None, "total_tokens": None,
                         "elapsed_seconds": 0.0, "error": None}
@@ -160,6 +161,7 @@ def classify(cleaned_df: pd.DataFrame, batch_size: int = 25, *, client: Any = No
                 try:
                     response = client.chat.completions.create(
                         model=model, messages=messages, response_format={"type": "json_object"},
+                        temperature=0,
                     )
                     usage = getattr(response, "usage", None)
                     for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
@@ -174,11 +176,21 @@ def classify(cleaned_df: pd.DataFrame, batch_size: int = 25, *, client: Any = No
                                for fid in batch_ids if fid not in successes}
                     if pending:
                         call["error"] = "部分反馈未通过分类校验。"
-                except Exception:
+                except Exception as exc:
+                    # Never log exception messages, bodies, headers or tracebacks.
+                    status = getattr(exc, "status_code", None)
+                    safe_status = status if type(status) is int and 100 <= status <= 599 else "未知"
+                    LOGGER.warning("LLM 调用失败：%s/%s", type(exc).__name__, safe_status)
                     call["error"] = "LLM 调用失败或响应异常，请稍后重试。"
                     pending = {fid: call["error"] for fid in batch_ids if fid not in successes}
                 finally:
                     call["elapsed_seconds"] = time.perf_counter() - call_started
+                    LOGGER.info(
+                        "LLM 调用：batch_size=%s call_count=%s model=%r elapsed_seconds=%.3f "
+                        "prompt_tokens=%s completion_tokens=%s total_tokens=%s",
+                        len(batch), result.call_count, model, call["elapsed_seconds"],
+                        call["prompt_tokens"], call["completion_tokens"], call["total_tokens"],
+                    )
                 if not pending:
                     break
             if pending:
