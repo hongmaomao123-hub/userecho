@@ -1,0 +1,148 @@
+{
+  "run_at": "2026-09-25T01:17:17.926757+08:00",
+  "purpose": "synthetic calibration/dev baseline",
+  "source": "data/dev/synthetic_calibration_round2.csv",
+  "source_sha256": "95335f5728dab92f87d68b1dc3ac727fa8330387caabcd1945296243173efacb",
+  "system_prompt_sha256": "c34b6976fd76cd2267953c88dec1f2d829d371a3f34d1bf1490b204df80795cf",
+  "sample_size": 10,
+  "schema_valid": 10,
+  "predictions": [
+    {
+      "feedback_id": "SYN-BR2-01",
+      "topics": [
+        {
+          "code": "other",
+          "sentiment": "neutral",
+          "severity": null
+        }
+      ],
+      "repurchase_signal": "none"
+    },
+    {
+      "feedback_id": "SYN-BR2-02",
+      "topics": [
+        {
+          "code": "scent_preference",
+          "sentiment": "positive",
+          "severity": null
+        }
+      ],
+      "repurchase_signal": "positive"
+    },
+    {
+      "feedback_id": "SYN-BR2-03",
+      "topics": [
+        {
+          "code": "service",
+          "sentiment": "mixed",
+          "severity": 2
+        }
+      ],
+      "repurchase_signal": "none"
+    },
+    {
+      "feedback_id": "SYN-BR2-04",
+      "topics": [
+        {
+          "code": "safety_discomfort",
+          "sentiment": "neutral",
+          "severity": null
+        }
+      ],
+      "repurchase_signal": "none"
+    },
+    {
+      "feedback_id": "SYN-BR2-05",
+      "topics": [
+        {
+          "code": "appearance_usage",
+          "sentiment": "positive",
+          "severity": null
+        },
+        {
+          "code": "packaging_leak",
+          "sentiment": "negative",
+          "severity": 2
+        }
+      ],
+      "repurchase_signal": "none"
+    },
+    {
+      "feedback_id": "SYN-BR2-06",
+      "topics": [
+        {
+          "code": "longevity_diffusion",
+          "sentiment": "negative",
+          "severity": 2
+        }
+      ],
+      "repurchase_signal": "conditional"
+    },
+    {
+      "feedback_id": "SYN-BR2-07",
+      "topics": [
+        {
+          "code": "safety_discomfort",
+          "sentiment": "negative",
+          "severity": 3
+        }
+      ],
+      "repurchase_signal": "none"
+    },
+    {
+      "feedback_id": "SYN-BR2-08",
+      "topics": [
+        {
+          "code": "scent_preference",
+          "sentiment": "negative",
+          "severity": 2
+        },
+        {
+          "code": "scent_mismatch",
+          "sentiment": "negative",
+          "severity": 2
+        }
+      ],
+      "repurchase_signal": "none"
+    },
+    {
+      "feedback_id": "SYN-BR2-09",
+      "topics": [
+        {
+          "code": "logistics",
+          "sentiment": "negative",
+          "severity": 2
+        }
+      ],
+      "repurchase_signal": "negative"
+    },
+    {
+      "feedback_id": "SYN-BR2-10",
+      "topics": [
+        {
+          "code": "price_value",
+          "sentiment": "positive",
+          "severity": null
+        }
+      ],
+      "repurchase_signal": "none"
+    }
+  ],
+  "calls": [
+    {
+      "batch": 1,
+      "attempt": 1,
+      "prompt_tokens": 2900,
+      "completion_tokens": 715,
+      "total_tokens": 3615,
+      "elapsed_seconds": 2.681321541000216,
+      "error": null
+    }
+  ],
+  "review_items": [],
+  "unprocessed": [],
+  "errors": [],
+  "elapsed_seconds": 2.7188187499996275,
+  "total_tokens": 3615,
+  "usage_complete": true
+}

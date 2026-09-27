@@ -1,12 +1,16 @@
 """Deterministic, network-free selection of classified topics."""
 
-from userecho.classification_schema import TopicAnnotation
+from typing import TypeVar
+
+from userecho.classification_schema import CandidateTopic
+
+T = TypeVar("T", bound=CandidateTopic)
 
 
-def select_topics(topics: list[TopicAnnotation]) -> list[TopicAnnotation]:
+def select_topics(topics: list[T]) -> list[T]:
     """Keep the first three, replacing the third with the first later safety item.
 
-    Raw model validation rejects duplicate codes before this function is used
+    Evidence processing removes duplicate codes before this function is used
     in classification. The function independently handles repeated safety items
     so its selection rule remains deterministic for any nonempty topic list.
     Return copies to avoid sharing mutable model instances with the input.

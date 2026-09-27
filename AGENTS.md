@@ -16,6 +16,8 @@ Codex 读取本文件；Claude Code 通过 CLAUDE.md 引用本文件。分工：
 8. 完成后要说明：改了哪些文件、怎么运行、怎么测试、有哪些已知限制。
 9. **不做 PRD 第 13 节「后续清单」里的任何功能**，除非用户明确要求。
 
+10. **除非项目负责人在当前任务中明确要求，否则编码助手不得执行 `git commit`、`git push`、创建标签、修改远程仓库或部署。**若任务写明“暂时不要commit”，必须停止在未提交状态。
+
 ## 目录约定
 ```
 app.py                 Streamlit 入口
@@ -29,7 +31,7 @@ data/eval/             评测集（步骤1–7禁止访问；步骤8仅允许评
 data/edge/             异常测试数据
 data/raw/              未脱敏原始数据（已在 .gitignore 中，禁止提交）
 tests/
-docs/                  PRD, decision_log, bad_case_log
+docs/                  PRD, decision_log, bad_case_log, experiment_log.md
 ```
 
 ## 运行

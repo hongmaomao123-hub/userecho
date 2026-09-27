@@ -1,15 +1,20 @@
-"""Chinese CSV upload and data-quality interface for step one."""
+"""Chinese upload, classification and deterministic topic-analysis interface."""
+
+import hashlib
 
 import pandas as pd
 import streamlit as st
 
 from userecho.steps.data_check import data_check
+from userecho.steps.classify import classify
+from userecho.steps.analyze import analyze, display_table, load_impact
 
 
 st.set_page_config(page_title="UserEcho 用户反馈检查", page_icon="💬", layout="wide")
 st.title("UserEcho 用户反馈检查")
-st.caption("上传 CSV，查看清洗后的前 10 行与数据检查结果。当前仅提供数据检查。")
-st.selectbox("分析目标", ["满意度分析", "主要抱怨", "复购相关"])
+st.caption("上传 CSV，查看清洗后的前 10 行与数据检查结果。点击开始分析后进行分类与主题统计。")
+goal_label = st.selectbox("分析目标", ["满意度分析", "主要抱怨", "复购相关"])
+goal = {"满意度分析": "satisfaction", "主要抱怨": "complaints", "复购相关": "repurchase"}[goal_label]
 upload = st.file_uploader("上传用户反馈 CSV", type=["csv"])
 st.caption("必填字段：feedback_id、feedback_text；支持 UTF-8 和 GB18030 编码。")
 
@@ -60,5 +65,64 @@ if upload is not None:
             lambda value: "—" if pd.isna(value) else format(float(value), "g")
         )
     st.dataframe(preview_df, hide_index=True)
+
+
+    if report["can_proceed"]:
+        upload_key = hashlib.sha256(upload.getvalue()).hexdigest()
+        if st.session_state.get("classification_upload") != upload_key:
+            st.session_state.pop("classification_result", None)
+            st.session_state["classification_upload"] = upload_key
+        st.caption("影响分 I 当前为临时占位值 2，待项目负责人人工调整。")
+        if report["analysis_mode"] == "summary_only":
+            st.info("样本量不足，仅展示主题统计")
+        if st.button("开始分析", type="primary"):
+            try:
+                load_impact(goal)
+                with st.spinner("正在分类反馈…"):
+                    st.session_state["classification_result"] = classify(cleaned_df)
+            except ValueError as exc:
+                st.error(str(exc))
+        result = st.session_state.get("classification_result")
+        if result is not None:
+            for error in result.errors:
+                st.error(error)
+            st.write(f"成功分类 {len(result.classifications)} 条；待人工复核 {len(result.review_items)} 条；未处理 {len(result.unprocessed)} 条。")
+            st.caption(f"API 调用 {result.call_count} 次；已记录 tokens {result.total_tokens}；耗时 {result.elapsed_seconds:.2f} 秒。")
+            if not result.usage_complete:
+                st.warning("部分调用缺少 token 用量，显示的是已知用量。")
+            if len(result.classifications) < report["valid_sample_size"]:
+                st.warning("分类尚未覆盖全部有效反馈；比例仍以本次处理反馈数为分母，结果仅反映已成功分类部分。")
+            if result.review_items:
+                st.subheader("分类人工复核清单")
+                st.dataframe(pd.DataFrame(result.review_items).rename(columns={"feedback_id":"反馈 ID", "reason":"复核原因"}), hide_index=True)
+            if result.unprocessed:
+                st.subheader("未处理反馈")
+                st.dataframe(pd.DataFrame(result.unprocessed).rename(columns={"feedback_id":"反馈 ID", "reason":"未处理原因"}), hide_index=True)
+            try:
+                analysis = analyze(result.classifications, report["valid_sample_size"], goal)
+                st.subheader("主题统计")
+                st.dataframe(display_table(analysis), hide_index=True)
+                if not analysis.empty:
+                    for title, subset in [
+                        ("优先级排序", analysis[analysis["priority"].notna()]),
+                        ("风险警报", analysis[analysis["risk_alert"]]),
+                        ("证据不足清单", analysis[analysis["insufficient_evidence"]]),
+                        ("主题人工复核清单", analysis[analysis["review_required"]]),
+                    ]:
+                        st.subheader(title)
+                        if subset.empty:
+                            st.info("暂无符合条件的主题。")
+                        else:
+                            if title == "风险警报":
+                                st.warning("仅用于反馈识别，需人工核实")
+                            st.dataframe(display_table(subset), hide_index=True)
+            except ValueError as exc:
+                st.error(str(exc))
+    else:
+        st.session_state.pop("classification_result", None)
+        st.session_state.pop("classification_upload", None)
+else:
+    st.session_state.pop("classification_result", None)
+    st.session_state.pop("classification_upload", None)
 
 st.caption("本工具不提供医疗诊断或健康建议。")

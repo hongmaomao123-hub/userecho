@@ -15,7 +15,7 @@ from userecho.classification_schema import (
 
 @pytest.mark.parametrize("sentiment", ["positive", "neutral"])
 def test_nonnegative_severity_is_real_null(sentiment):
-    model = TopicAnnotation(code="other", sentiment=sentiment, severity=None)
+    model = TopicAnnotation(source_span="原文", mention_type="asserted", code="other", sentiment=sentiment, severity=None)
     assert model.severity is None
     assert json.loads(model.model_dump_json())["severity"] is None
 
@@ -23,7 +23,7 @@ def test_nonnegative_severity_is_real_null(sentiment):
 @pytest.mark.parametrize("sentiment", ["negative", "mixed"])
 @pytest.mark.parametrize("severity", [1, 2, 3])
 def test_negative_severity_range(sentiment, severity):
-    model = TopicAnnotation(code="safety_discomfort", sentiment=sentiment, severity=severity)
+    model = TopicAnnotation(source_span="原文", mention_type="asserted", code="safety_discomfort", sentiment=sentiment, severity=severity)
     assert model.severity == severity
 
 
@@ -34,7 +34,7 @@ def test_negative_severity_range(sentiment, severity):
 ])
 def test_invalid_severity_is_rejected(sentiment, severity):
     with pytest.raises(ValidationError):
-        TopicAnnotation(code="other", sentiment=sentiment, severity=severity)
+        TopicAnnotation(source_span="原文", mention_type="asserted", code="other", sentiment=sentiment, severity=severity)
 
 
 def test_severity_must_be_present():
@@ -46,7 +46,7 @@ def test_severity_must_be_present():
     ("code", "unknown"), ("sentiment", "uncertain"), ("risk_alert", False),
 ])
 def test_invalid_enum_or_extra_field_is_rejected(field, value):
-    payload = {"code": "other", "sentiment": "neutral", "severity": None}
+    payload = {"code": "other", "sentiment": "neutral", "severity": None, "source_span": "原文", "mention_type": "asserted"}
     payload[field] = value
     with pytest.raises(ValidationError):
         TopicAnnotation.model_validate(payload)
@@ -62,13 +62,13 @@ def test_topic_codes_match_configuration():
 def test_feedback_model_limits(model, limit):
     codes = list(get_args(TopicCode))
     payload = {"feedback_id": "001", "topics": [
-        {"code": code, "sentiment": "neutral", "severity": None} for code in codes[:limit]
+        {"code": code, "sentiment": "neutral", "severity": None, "source_span": "原文", "mention_type": "asserted"} for code in codes[:limit]
     ], "repurchase_signal": "none"}
     assert len(model.model_validate(payload).topics) == limit
     payload["topics"] = []
     with pytest.raises(ValidationError):
         model.model_validate(payload)
-    payload["topics"] = [{"code": "other", "sentiment": "neutral", "severity": None}] * (limit + 1)
+    payload["topics"] = [{"code": "other", "sentiment": "neutral", "severity": None, "source_span": "原文", "mention_type": "asserted"}] * (limit + 1)
     with pytest.raises(ValidationError):
         model.model_validate(payload)
 
@@ -77,10 +77,13 @@ def test_feedback_model_limits(model, limit):
 @pytest.mark.parametrize("change", ["duplicate", "repurchase", "id", "extra"])
 def test_feedback_model_rejects_invalid_contract(model, change):
     payload = {"feedback_id": "001", "topics": [
-        {"code": "other", "sentiment": "neutral", "severity": None}
+        {"code": "other", "sentiment": "neutral", "severity": None, "source_span": "原文", "mention_type": "asserted"}
     ], "repurchase_signal": "none"}
     if change == "duplicate":
         payload["topics"] *= 2
+        if model is RawFeedbackClassification:
+            assert len(model.model_validate(payload).topics) == 2
+            return
     elif change == "repurchase":
         payload["repurchase_signal"] = "maybe"
     elif change == "id":
@@ -89,3 +92,21 @@ def test_feedback_model_rejects_invalid_contract(model, change):
         payload["risk_alert"] = True
     with pytest.raises(ValidationError):
         model.model_validate(payload)
+
+
+@pytest.mark.parametrize("field", ["source_span", "mention_type"])
+def test_provenance_fields_are_required(field):
+    payload = {"code": "other", "sentiment": "neutral", "severity": None,
+               "source_span": "原文", "mention_type": "asserted"}
+    payload.pop(field)
+    with pytest.raises(ValidationError):
+        TopicAnnotation.model_validate(payload)
+
+
+@pytest.mark.parametrize("field,value", [("source_span", 1), ("source_span", None), ("mention_type", "guess")])
+def test_provenance_field_types_are_strict(field, value):
+    payload = {"code": "other", "sentiment": "neutral", "severity": None,
+               "source_span": "原文", "mention_type": "asserted"}
+    payload[field] = value
+    with pytest.raises(ValidationError):
+        TopicAnnotation.model_validate(payload)

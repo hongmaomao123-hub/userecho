@@ -12,7 +12,7 @@
     "userecho/classification_prompt.py": "cdbdc2567fc44e6801fa80b5ad37b11f1a9e479a045407b3b4997d43604d764b",
     "config/taxonomy.yaml": "02cdb47b6c9275b71bb75b6a26a9a2311696c85ae91cff9302324c9c06c3dea8",
     "data/dev/guided_examples_round1.csv": "6ff8ed30cf023d22650dfe1af01401f186c0f2ea0256f4283d57554b8be2dd77",
-    "data/dev/blind_annotation_round2.csv": "95335f5728dab92f87d68b1dc3ac727fa8330387caabcd1945296243173efacb"
+    "data/dev/synthetic_calibration_round2.csv": "95335f5728dab92f87d68b1dc3ac727fa8330387caabcd1945296243173efacb"
   },
   "input_fingerprint_method": "SHA-256 of UTF-8 JSON, sorted keys, compact separators, ordered rows",
   "runs": [

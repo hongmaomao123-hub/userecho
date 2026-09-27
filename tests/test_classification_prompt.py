@@ -33,9 +33,8 @@ def test_feedback_is_json_data_in_separate_message():
 
 def test_prompt_does_not_label_all_uncertain_alternatives():
     prompt = build_system_prompt()
-    assert "不要把用户的猜测、疑问或备选原因直接标为已确认主题" in prompt
-    assert "只标有直接事实证据的主题" in prompt
-    assert "不能把每个候选原因都转换为标签" in prompt
+    assert "备选原因应标 uncertain，不得当作 asserted" in prompt
+    assert "不要自行删除 uncertain 主题" in prompt
     for expression in ["说不清", "可能", "不知道是不是", "A还是B", "会不会"]:
         assert expression in prompt
 
@@ -50,4 +49,13 @@ def test_prompt_keeps_neutral_safety_questions_as_explicit_exception():
     prompt = build_system_prompt()
     assert "儿童、孕妇、宠物的中性安全咨询是明确安全议题" in prompt
     assert "即使是疑问句，仍标 safety_discomfort / neutral / null" in prompt
-    assert "这是上述“疑问不等于确定事实”规则的明确例外" in prompt
+    assert "此类咨询的 mention_type 必须为 consultation" in prompt
+
+
+def test_prompt_requires_verbatim_provenance_and_independent_feedback():
+    prompt = build_system_prompt()
+    assert "逐字复制原文中的连续片段，包括标点符号和空格" in prompt
+    assert "不能改写、不能补充省略号、不能修正错别字" in prompt
+    assert "每条反馈独立分析，不使用同批其他反馈作为判断依据" in prompt
+    for field in ["source_span", "mention_type", "asserted", "uncertain", "consultation"]:
+        assert field in prompt

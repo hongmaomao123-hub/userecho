@@ -15,14 +15,20 @@ RepurchaseSignal = Literal["positive", "negative", "conditional", "none"]
 Severity = Annotated[int, Field(strict=True, ge=1, le=3)]
 
 
-class TopicAnnotation(BaseModel):
-    """One topic with a required, sentiment-dependent severity value."""
+class CandidateTopic(BaseModel):
+    """Candidate structure; cross-field constraints run after evidence processing."""
 
     model_config = ConfigDict(extra="forbid", strict=True)
 
     code: TopicCode
     sentiment: Sentiment
     severity: Severity | None
+    source_span: str
+    mention_type: Literal["asserted", "uncertain", "consultation"]
+
+
+class TopicAnnotation(CandidateTopic):
+    """Trusted topic with final sentiment/severity constraints."""
 
     @model_validator(mode="after")
     def validate_severity(self) -> Self:
@@ -40,18 +46,18 @@ class RawFeedbackClassification(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
     feedback_id: str
-    topics: list[TopicAnnotation] = Field(min_length=1, max_length=10)
+    topics: list[CandidateTopic] = Field(min_length=1, max_length=10)
     repurchase_signal: RepurchaseSignal
-
-    @model_validator(mode="after")
-    def validate_unique_codes(self) -> Self:
-        codes = [topic.code for topic in self.topics]
-        if len(codes) != len(set(codes)):
-            raise ValueError("Topic codes must be unique within one feedback")
-        return self
 
 
 class FeedbackClassification(RawFeedbackClassification):
     """Public classification after selection, with at most three topics."""
 
     topics: list[TopicAnnotation] = Field(min_length=1, max_length=3)
+
+    @model_validator(mode="after")
+    def validate_unique_codes(self) -> Self:
+        codes = [topic.code for topic in self.topics]
+        if len(codes) != len(set(codes)):
+            raise ValueError("Final topic codes must be unique")
+        return self

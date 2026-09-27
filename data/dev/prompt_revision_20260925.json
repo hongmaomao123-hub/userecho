@@ -1,0 +1,316 @@
+{
+  "run_at": "2026-09-25T01:24:29.579456+08:00",
+  "purpose": "synthetic calibration/dev controlled prompt revision",
+  "system_prompt_sha256": "42f61aee3a63399bc63c17e08347a3477d96b1700dc55594a7a648ff4609b85f",
+  "runs": [
+    {
+      "source": "data/dev/guided_examples_round1.csv",
+      "source_sha256": "6ff8ed30cf023d22650dfe1af01401f186c0f2ea0256f4283d57554b8be2dd77",
+      "sample_size": 10,
+      "schema_valid": 10,
+      "predictions": [
+        {
+          "feedback_id": "SYN-BR1-01",
+          "topics": [
+            {
+              "code": "appearance_usage",
+              "sentiment": "positive",
+              "severity": null
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-02",
+          "topics": [
+            {
+              "code": "scent_mismatch",
+              "sentiment": "negative",
+              "severity": 2
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-03",
+          "topics": [
+            {
+              "code": "logistics",
+              "sentiment": "positive",
+              "severity": null
+            },
+            {
+              "code": "packaging_leak",
+              "sentiment": "negative",
+              "severity": 2
+            },
+            {
+              "code": "service",
+              "sentiment": "positive",
+              "severity": null
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-04",
+          "topics": [
+            {
+              "code": "longevity_diffusion",
+              "sentiment": "mixed",
+              "severity": 2
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-05",
+          "topics": [
+            {
+              "code": "price_value",
+              "sentiment": "negative",
+              "severity": 2
+            }
+          ],
+          "repurchase_signal": "conditional"
+        },
+        {
+          "feedback_id": "SYN-BR1-06",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "negative",
+              "severity": 3
+            }
+          ],
+          "repurchase_signal": "negative"
+        },
+        {
+          "feedback_id": "SYN-BR1-07",
+          "topics": [
+            {
+              "code": "scent_preference",
+              "sentiment": "negative",
+              "severity": 1
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-08",
+          "topics": [
+            {
+              "code": "longevity_diffusion",
+              "sentiment": "negative",
+              "severity": 2
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-09",
+          "topics": [
+            {
+              "code": "other",
+              "sentiment": "neutral",
+              "severity": null
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-10",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "neutral",
+              "severity": null
+            }
+          ],
+          "repurchase_signal": "none"
+        }
+      ],
+      "calls": [
+        {
+          "batch": 1,
+          "attempt": 1,
+          "prompt_tokens": 2992,
+          "completion_tokens": 715,
+          "total_tokens": 3707,
+          "elapsed_seconds": 2.606799790999503,
+          "error": null
+        }
+      ],
+      "review_items": [],
+      "unprocessed": [],
+      "errors": [],
+      "total_tokens": 3707,
+      "elapsed_seconds": 2.642594666001969,
+      "usage_complete": true
+    },
+    {
+      "source": "data/dev/synthetic_calibration_round2.csv",
+      "source_sha256": "95335f5728dab92f87d68b1dc3ac727fa8330387caabcd1945296243173efacb",
+      "sample_size": 10,
+      "schema_valid": 10,
+      "predictions": [
+        {
+          "feedback_id": "SYN-BR2-01",
+          "topics": [
+            {
+              "code": "other",
+              "sentiment": "neutral",
+              "severity": null
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-02",
+          "topics": [
+            {
+              "code": "scent_preference",
+              "sentiment": "positive",
+              "severity": null
+            }
+          ],
+          "repurchase_signal": "positive"
+        },
+        {
+          "feedback_id": "SYN-BR2-03",
+          "topics": [
+            {
+              "code": "service",
+              "sentiment": "mixed",
+              "severity": 2
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-04",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "neutral",
+              "severity": null
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-05",
+          "topics": [
+            {
+              "code": "appearance_usage",
+              "sentiment": "positive",
+              "severity": null
+            },
+            {
+              "code": "packaging_leak",
+              "sentiment": "negative",
+              "severity": 2
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-06",
+          "topics": [
+            {
+              "code": "longevity_diffusion",
+              "sentiment": "negative",
+              "severity": 2
+            }
+          ],
+          "repurchase_signal": "conditional"
+        },
+        {
+          "feedback_id": "SYN-BR2-07",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "negative",
+              "severity": 3
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-08",
+          "topics": [
+            {
+              "code": "scent_preference",
+              "sentiment": "negative",
+              "severity": 1
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-09",
+          "topics": [
+            {
+              "code": "logistics",
+              "sentiment": "negative",
+              "severity": 2
+            }
+          ],
+          "repurchase_signal": "negative"
+        },
+        {
+          "feedback_id": "SYN-BR2-10",
+          "topics": [
+            {
+              "code": "price_value",
+              "sentiment": "positive",
+              "severity": null
+            }
+          ],
+          "repurchase_signal": "none"
+        }
+      ],
+      "calls": [
+        {
+          "batch": 1,
+          "attempt": 1,
+          "prompt_tokens": 3007,
+          "completion_tokens": 422,
+          "total_tokens": 3429,
+          "elapsed_seconds": 2.276749791999464,
+          "error": null
+        }
+      ],
+      "review_items": [],
+      "unprocessed": [],
+      "errors": [],
+      "total_tokens": 3429,
+      "elapsed_seconds": 2.2899575419942266,
+      "usage_complete": true
+    }
+  ],
+  "round2_comparison": {
+    "reference_ids": [
+      "SYN-BR2-04",
+      "SYN-BR2-05",
+      "SYN-BR2-08"
+    ],
+    "reference_source": "负责人既有 04/05 裁决及本轮 08 预期；08 repurchase_signal=none 沿用明确购买意图规则",
+    "before": {
+      "reference_count": 3,
+      "feedback_exact_match": 2,
+      "extra_topics": 1,
+      "missing_topics": 0
+    },
+    "after": {
+      "reference_count": 3,
+      "feedback_exact_match": 3,
+      "extra_topics": 0,
+      "missing_topics": 0
+    },
+    "changed_ids": [
+      "SYN-BR2-08"
+    ],
+    "full_dataset_metrics": null
+  }
+}

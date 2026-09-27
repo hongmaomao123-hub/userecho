@@ -13,7 +13,7 @@ from userecho.steps.topic_selection import select_topics
     (["other"], ["other"]),
 ])
 def test_selection_and_input_isolation(codes, expected):
-    topics = [TopicAnnotation(code=code, sentiment="negative", severity=1 if i < 4 else 3)
+    topics = [TopicAnnotation(source_span="原文", mention_type="asserted", code=code, sentiment="negative", severity=1 if i < 4 else 3)
               for i, code in enumerate(codes)]
     before = [topic.model_dump() for topic in topics]
     selected = select_topics(topics)

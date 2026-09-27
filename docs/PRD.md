@@ -41,21 +41,73 @@ UserEcho 是一个受约束的 AI 用户反馈分析工作流，不是完全自�
 | service | 客服与售后 | |
 | other | 其他或无法判断 | 去掉空格后少于 4 个字的反馈，一律归入此类 |
 
+主题表字段经项目负责人确认后固定如下，仅统一字段契约，不改变现有主题定义或业务边界。`topics` 以本节规定的 10 个唯一 code 为键，不允许新增表外 code，`other` 恰好存在一个。
+
+| 字段 | 类型 | 含义 |
+|---|---|---|
+| name_zh | 字符串 | 中文主题名称 |
+| definition | 字符串 | 主题定义 |
+| include | 字符串列表 | 纳入该主题的情况 |
+| exclude | 字符串列表 | 排除或应归入其他主题的情况 |
+| confused_with | 字符串列表 | 容易混淆的相邻主题，只能引用现有主题 code，且不得引用自身 |
+
+每个主题固定包含上述五个字段。标注指南末尾未决边界仍需项目负责人确认；本次已确认的复购、浓淡与偏好、中性安全咨询规则如下，其余未决边界不作裁定。
+
+太淡、太浓、扩散范围属于 `longevity_diffusion`；仅表达不喜欢气味属于 `scent_preference`。同一反馈可以同时包含两个主题，各自须有文本依据。`safety_discomfort` 包含已经发生的身体症状，以及明确的儿童或宠物安全顾虑；售前或使用前的儿童、宠物安全咨询归入 `safety_discomfort / neutral / null`，该提及不触发 `risk_alert`。
+
+只有涉及官方页面、商家描述或明确宣传承诺与实际气味不符，才标 `scent_mismatch`；试香纸、皮肤、衣物等不同载体上的主观气味差异，在没有官方宣传对照时暂归 `scent_preference`。
+
 ### 3.2 标注字段
 
-- **多标签**：每条反馈最多 3 个主题，同一主题只出现一次。
+- **多标签**：最终每条反馈最多 3 个主题，同一主题只出现一次；原始候选提及按第 3.3 节去重。不存在通用的“缺陷优先单主标签”规则，不新增 `main_topic` 或 defect-first 规则；跨主题时每个主题分别标 sentiment 和 severity。
+- 多标签按文本首次出现顺序保存；评测按 topic code 的无序集合匹配，不按 topic_1/topic_2/topic_3 的位置比较。
 - **每个主题单独标注**：
   - `sentiment` 取值：`positive` / `negative` / `neutral` / `mixed`
   - `mixed` 只用于**同一主题内部**同时出现明显正负评价的情况，例如「前调好闻，后调刺鼻」。语气复杂但评价方向明确的，不标 `mixed`。
   - `severity`：仅当 sentiment 为 `negative` 或 `mixed` 时标注 1–3；`positive` 和 `neutral` 为 `null`。
-    - 1 = 轻微不满
-    - 2 = 体验明显受损
-    - 3 = 无法使用，或涉及安全、健康、财产损失
+    - 1 = 轻微主观不悦，如口味不喜欢
+    - 2 = 阻碍使用或购买，如漏液、明显贵但买了；条件已经阻止当前购买或复购时，价格问题通常为 2
+    - 3 = 仅用于明确身体不适或安全风险；仅无法使用或财产损失不再单独作为 3 的依据
 - **整条反馈的复购信号** `repurchase_signal`，取值：
-  - `positive`：会回购或推荐
-  - `negative`：不会回购
-  - `conditional`：有条件回购，例如「便宜点会回购」
-  - `none`：没有提及
+  - `positive`：明确会回购或再次购买
+  - `negative`：明确不会再买
+  - `conditional`：明确在某个条件满足后才考虑再次购买
+  - `none`：未明确表达再次购买意图
+
+**复购信号硬规则**：只能依据用户明确表达的再次购买意图判断，不得从满意、不满、评分、换货结果、情绪或 severity 推测；仅推荐他人而没有表达自己再次购买意图时为 `none`。
+
+“不敢再用、不敢再点、停止使用”不能自动推导为复购 negative；只有明确提到不买、不回购、不下单等购买意愿，才能标 negative。
+
+人工标注 CSV 保留三组字段 `topic_1/sentiment_1/severity_1`、`topic_2/sentiment_2/severity_2`、`topic_3/sentiment_3/severity_3`；不足三主题时未使用组保持为空。标注字段中的文本 `null` 读取后必须标准化为 Python `None`，后续 Pydantic/JSON 使用真正的 null，不得输出字符串 "null"；不对反馈原文字面文本作此转换。完整表头及校准裁决见标注指南；分类运行时的来源字段与处理规则见第 3.3 节。
+
+### 3.3 主题提及来源与确定性后处理（负责人批准）
+
+`TopicAnnotation` 新增必填 `source_span: str` 与 `mention_type: asserted / uncertain / consultation`。
+`source_span` 是支持该主题的连续反馈原文片段，必须逐字复制，包括标点符号和空格，不改写、不补省略号、不修正错别字。去除首尾空白后须非空且在对应 `feedback_text` 中精确找到；不做模糊匹配或内部空白、标点归一化。
+
+- asserted：明确陈述的体验、事实或评价。
+- uncertain：猜测、可能性、备选原因或无法确认的判断。
+- consultation：尚未发生体验的售前或使用前咨询。
+
+严格处理顺序：① Pydantic 结构校验；② 所有候选 source_span 原文子串校验；③ 同主题去重；④ mention_type 过滤和转换；⑤ 对可信主题执行最多三个主题的 select_topics；⑥ 最终 sentiment/severity 约束；⑦ 后续 risk_alert 等派生。未通过证据过滤的主题不占名额。本阶段不新增风险计算代码。
+
+原始候选结构最多 10 项，允许同一 code 的不同提及；最终输出仍为 1–3 个唯一主题。候选结构先检查类型和枚举，情绪与严重度的组合约束留到转换、裁剪后验证，确保咨询可被强制改为 neutral/null。
+
+| 候选情况 | 确定性处理 |
+|---|---|
+| asserted | 正常保留 |
+| 同主题 asserted 与 uncertain | 保留 asserted，删除 uncertain，记录 dropped_uncertain_duplicate |
+| uncertain 与其他可信主题并存 | 删除 uncertain，记录 dropped_uncertain_topic；不将猜测变成最终主题 |
+| 全部候选均为 uncertain | 整条进入 review_items，reason=uncertain_only_requires_review，不重试 |
+| 任一 source_span 非原文子串或空白 | 整条进入 review_items，reason=source_span_not_in_feedback，不重试；即使该候选随后本会被删除也先校验 |
+| safety_discomfort 的 consultation（含儿童、孕妇、宠物中性咨询） | 保留，强制 neutral/null，该提及不触发 risk_alert |
+| 非安全 consultation | 有其他可信主题则删除；过滤后无主题则转换为 other/neutral/null，保留 consultation 类型及原始证据，不复核、不重试 |
+
+删除与转换事件在 `provenance_events` 返回，仅含 feedback_id、code、reason，不含原文；额外事件为 dropped_duplicate_topic、dropped_non_safety_consultation、converted_consultation_to_other。
+
+仅网络/API 临时错误、JSON 解析失败、Pydantic 校验失败、返回结构缺失或损坏可重试。HTTP 408/409/429/5xx 为临时状态；其余 API 状态不自动重试。语义过滤及复核条目不消耗重试，其余反馈的重试请求排除已进入语义复核的条目。每批仍最多两次重试、全局最多 15 次调用，temperature=0 不变。
+
+Prompt 要求逐条独立提取候选、原文证据、mention_type、sentiment/severity 及既有复购字段，不使用同批其他反馈作为依据；不得要求模型自行删 uncertain。复购与风险规则不变。候选选择与提及类型仍由模型产生，原文子串存在仅证明引用真实，不证明主题或 mention_type 判断必然正确。
 
 ## 4. 工作流
 
@@ -106,7 +158,7 @@ flowchart TD
 
 **计入打分的提及**：只计 sentiment 为 `negative` 或 `mixed` 的提及。`positive` 和 `neutral` 只做描述性统计。
 
-**独立风险标志**：`risk_alert` 不是 P0–P3 优先级，也不替代优先级。对每个主题，只要存在任意 sentiment 为 `negative` / `mixed` 的 `safety_discomfort` 提及，或任意 `severity = 3` 的提及，均设置 `risk_alert=true`，不受负向提及数门槛限制。未满足上述高风险条件时，不生成风险警报。
+**独立风险标志**：`risk_alert` 由后续代码根据主题、sentiment 和 severity 派生，不作为人工标注字段。`risk_alert` 不是 P0–P3 优先级，也不替代优先级。对每个主题，只要存在任意 sentiment 为 `negative` / `mixed` 的 `safety_discomfort` 提及，或任意 `severity = 3` 的提及，均设置 `risk_alert=true`，不受负向提及数门槛限制。未满足上述高风险条件时，不生成风险警报。
 
 对每个主题，按「负向提及数」及上述高风险条件分三条路径：
 
@@ -120,7 +172,7 @@ flowchart TD
 
 ```
 F = 负向提及数 ÷ 有效反馈数：≥15% → 3；5% ≤ share < 15% → 2；<5% → 1
-S = 该主题负向提及的 severity 中位数，向上取整（偏保守，便于识别风险）
+S = 该主题 negative/mixed 提及的 severity 中位数，小数向下取整（2026-09-26 负责人批准）
 I = 查 config/impact.yaml（按 goal_type 人工设定，写进 decision_log）
 基础分 = F + S + I（3–9）→ P0 ≥ 8 ｜ P1 6–7 ｜ P2 4–5 ｜ P3 = 3
 ```
@@ -219,4 +271,6 @@ Python 3.11+ ｜ Streamlit ｜ pandas ｜ OpenAI 兼容 SDK（环境变量 `LLM_
 |---|---|
 | v1.1 | 新增分类步骤、固定主题表、证据由代码筛选 |
 | v1.2 | 改为加法打分 + 强制规则；多标签，情绪按主题标注；香味拆成两个主题；复购信号独立成字段 |
-| v1.3 | 按 MVP 收缩范围：分析目标改为下拉选择；补全 sentiment 和 repurchase 的枚举值；定义三路径；补全 data_check 规则；评测指标减为 4 项；数据量下调；访谈材料只用于设计主题；复杂功能移入后续清单；澄清 `risk_alert` 为独立风险标志：negative/mixed 的 safety_discomfort 或任意 severity=3 均触发，负向提及 ≥2 时可与 P0–P3 并存，<2 时高风险只报警并人工复核、非高风险只标记 `insufficient_evidence`，均不计算优先级；统一 eval 访问规则（步骤1–7禁止访问，步骤8仅评测脚本读取）；第一阶段审查修复进行契约对齐，统一 `raw_sample_size`、`valid_sample_size`、`analysis_mode` 及其四种枚举，实际有效样本量与返回数据一致且最多 200 条，截断必须提示数量与排序影响；明确空 ID 排除、真正缺失文本与字面 NA/NULL 的区别、编码依次使用 utf-8-sig 和 gb18030 |
+| v1.3 | 按 MVP 收缩范围：分析目标改为下拉选择；补全 sentiment 和 repurchase 的枚举值；定义三路径；补全 data_check 规则；评测指标减为 4 项；数据量下调；访谈材料只用于设计主题；复杂功能移入后续清单；澄清 `risk_alert` 为独立风险标志：negative/mixed 的 safety_discomfort 或任意 severity=3 均触发，负向提及 ≥2 时可与 P0–P3 并存，<2 时高风险只报警并人工复核、非高风险只标记 `insufficient_evidence`，均不计算优先级；统一 eval 访问规则（步骤1–7禁止访问，步骤8仅评测脚本读取）；第一阶段审查修复进行契约对齐，统一 `raw_sample_size`、`valid_sample_size`、`analysis_mode` 及其四种枚举，实际有效样本量与返回数据一致且最多 200 条，截断必须提示数量与排序影响；明确空 ID 排除、真正缺失文本与字面 NA/NULL 的区别、编码依次使用 utf-8-sig 和 gb18030；第二阶段验收经项目负责人确认，固定 taxonomy 字段为 name_zh、definition、include、exclude、confused_with，仅统一字段契约，不改变主题业务内容；2026-09-23 确认复购禁止推断、浓淡与个人偏好可多标签、中性售前安全咨询为 neutral/null 且该提及不触发风险警报，十条 synthetic 案例定位为 guided examples |
+
+2026-09-25 v1.3 补充：经负责人批准，增加 source_span、mention_type、证据校验与确定性后处理顺序，语义复核不重试；最终主题数量与风险规则不变。

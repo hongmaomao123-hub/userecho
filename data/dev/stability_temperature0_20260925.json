@@ -1,0 +1,448 @@
+{
+  "purpose": "synthetic calibration/dev stability check; not formal accuracy or F1",
+  "model": "deepseek-chat",
+  "temperature": 0,
+  "system_prompt_sha256": "42f61aee3a63399bc63c17e08347a3477d96b1700dc55594a7a648ff4609b85f",
+  "reference": [
+    {
+      "feedback_id": "SYN-BR1-04",
+      "topics": [
+        {
+          "code": "longevity_diffusion",
+          "sentiment": "mixed",
+          "severity": 1
+        }
+      ],
+      "repurchase_signal": "none"
+    },
+    {
+      "feedback_id": "SYN-BR1-08",
+      "topics": [
+        {
+          "code": "longevity_diffusion",
+          "sentiment": "negative",
+          "severity": 2
+        }
+      ],
+      "repurchase_signal": "none"
+    },
+    {
+      "feedback_id": "SYN-BR1-10",
+      "topics": [
+        {
+          "code": "safety_discomfort",
+          "sentiment": "neutral",
+          "severity": null
+        }
+      ],
+      "repurchase_signal": "none"
+    },
+    {
+      "feedback_id": "SYN-BR2-04",
+      "topics": [
+        {
+          "code": "safety_discomfort",
+          "sentiment": "neutral",
+          "severity": null
+        }
+      ],
+      "repurchase_signal": "none"
+    },
+    {
+      "feedback_id": "SYN-BR2-08",
+      "topics": [
+        {
+          "code": "scent_preference",
+          "sentiment": "negative",
+          "severity": 1
+        }
+      ],
+      "repurchase_signal": "none"
+    }
+  ],
+  "input": [
+    {
+      "feedback_id": "SYN-BR1-04",
+      "feedback_text": "放在卧室里香味能留到第二天，这点很好，但走到门口就几乎闻不到了，扩散范围让我有些失望。"
+    },
+    {
+      "feedback_id": "SYN-BR1-08",
+      "feedback_text": "才插两根藤条就觉得冲，闻着难受，说不清是味道不喜欢还是太浓了。"
+    },
+    {
+      "feedback_id": "SYN-BR1-10",
+      "feedback_text": "家里有猫，放这款香薰会不会有影响？目前还没拆封，想先问清楚。"
+    },
+    {
+      "feedback_id": "SYN-BR2-04",
+      "feedback_text": "请教一下，这款衣物香氛用于三岁孩子的外套有没有年龄限制？说明书里我没找到相关信息。"
+    },
+    {
+      "feedback_id": "SYN-BR2-08",
+      "feedback_text": "试香纸上明明挺柔和，到衣服上就像洗衣粉，这是味道变了还是我鼻子太挑？反正总觉得哪里不对。"
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "stability-t0-20260925-01",
+      "started_at": "2026-09-25T01:35:22.978149+08:00",
+      "model": "deepseek-chat",
+      "system_prompt_sha256": "42f61aee3a63399bc63c17e08347a3477d96b1700dc55594a7a648ff4609b85f",
+      "temperature": 0,
+      "predictions": [
+        {
+          "feedback_id": "SYN-BR1-04",
+          "topics": [
+            {
+              "code": "longevity_diffusion",
+              "sentiment": "mixed",
+              "severity": 1
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-08",
+          "topics": [
+            {
+              "code": "longevity_diffusion",
+              "sentiment": "negative",
+              "severity": 2
+            },
+            {
+              "code": "scent_preference",
+              "sentiment": "negative",
+              "severity": 2
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-10",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "neutral",
+              "severity": null
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-04",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "neutral",
+              "severity": null
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-08",
+          "topics": [
+            {
+              "code": "scent_preference",
+              "sentiment": "negative",
+              "severity": 1
+            }
+          ],
+          "repurchase_signal": "none"
+        }
+      ],
+      "differences": [
+        {
+          "feedback_id": "SYN-BR1-08",
+          "expected": {
+            "feedback_id": "SYN-BR1-08",
+            "topics": [
+              {
+                "code": "longevity_diffusion",
+                "sentiment": "negative",
+                "severity": 2
+              }
+            ],
+            "repurchase_signal": "none"
+          },
+          "actual": {
+            "feedback_id": "SYN-BR1-08",
+            "topics": [
+              {
+                "code": "longevity_diffusion",
+                "sentiment": "negative",
+                "severity": 2
+              },
+              {
+                "code": "scent_preference",
+                "sentiment": "negative",
+                "severity": 2
+              }
+            ],
+            "repurchase_signal": "none"
+          }
+        }
+      ],
+      "passed": false,
+      "calls": [
+        {
+          "batch": 1,
+          "attempt": 1,
+          "prompt_tokens": 2809,
+          "completion_tokens": 371,
+          "total_tokens": 3180,
+          "elapsed_seconds": 2.1609879579991684,
+          "error": null
+        }
+      ],
+      "call_count": 1,
+      "total_tokens": 3180,
+      "elapsed_seconds": 2.16511595799966,
+      "usage_complete": true,
+      "review_items": [],
+      "unprocessed": [],
+      "errors": []
+    },
+    {
+      "run_id": "stability-t0-20260925-02",
+      "started_at": "2026-09-25T01:35:25.155112+08:00",
+      "model": "deepseek-chat",
+      "system_prompt_sha256": "42f61aee3a63399bc63c17e08347a3477d96b1700dc55594a7a648ff4609b85f",
+      "temperature": 0,
+      "predictions": [
+        {
+          "feedback_id": "SYN-BR1-04",
+          "topics": [
+            {
+              "code": "longevity_diffusion",
+              "sentiment": "mixed",
+              "severity": 1
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-08",
+          "topics": [
+            {
+              "code": "longevity_diffusion",
+              "sentiment": "negative",
+              "severity": 2
+            },
+            {
+              "code": "scent_preference",
+              "sentiment": "negative",
+              "severity": 2
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-10",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "neutral",
+              "severity": null
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-04",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "neutral",
+              "severity": null
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-08",
+          "topics": [
+            {
+              "code": "scent_preference",
+              "sentiment": "negative",
+              "severity": 1
+            }
+          ],
+          "repurchase_signal": "none"
+        }
+      ],
+      "differences": [
+        {
+          "feedback_id": "SYN-BR1-08",
+          "expected": {
+            "feedback_id": "SYN-BR1-08",
+            "topics": [
+              {
+                "code": "longevity_diffusion",
+                "sentiment": "negative",
+                "severity": 2
+              }
+            ],
+            "repurchase_signal": "none"
+          },
+          "actual": {
+            "feedback_id": "SYN-BR1-08",
+            "topics": [
+              {
+                "code": "longevity_diffusion",
+                "sentiment": "negative",
+                "severity": 2
+              },
+              {
+                "code": "scent_preference",
+                "sentiment": "negative",
+                "severity": 2
+              }
+            ],
+            "repurchase_signal": "none"
+          }
+        }
+      ],
+      "passed": false,
+      "calls": [
+        {
+          "batch": 1,
+          "attempt": 1,
+          "prompt_tokens": 2809,
+          "completion_tokens": 371,
+          "total_tokens": 3180,
+          "elapsed_seconds": 1.6933996250008931,
+          "error": null
+        }
+      ],
+      "call_count": 1,
+      "total_tokens": 3180,
+      "elapsed_seconds": 1.703691249997064,
+      "usage_complete": true,
+      "review_items": [],
+      "unprocessed": [],
+      "errors": []
+    },
+    {
+      "run_id": "stability-t0-20260925-03",
+      "started_at": "2026-09-25T01:35:26.875120+08:00",
+      "model": "deepseek-chat",
+      "system_prompt_sha256": "42f61aee3a63399bc63c17e08347a3477d96b1700dc55594a7a648ff4609b85f",
+      "temperature": 0,
+      "predictions": [
+        {
+          "feedback_id": "SYN-BR1-04",
+          "topics": [
+            {
+              "code": "longevity_diffusion",
+              "sentiment": "mixed",
+              "severity": 1
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-08",
+          "topics": [
+            {
+              "code": "longevity_diffusion",
+              "sentiment": "negative",
+              "severity": 2
+            },
+            {
+              "code": "scent_preference",
+              "sentiment": "negative",
+              "severity": 2
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR1-10",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "neutral",
+              "severity": null
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-04",
+          "topics": [
+            {
+              "code": "safety_discomfort",
+              "sentiment": "neutral",
+              "severity": null
+            }
+          ],
+          "repurchase_signal": "none"
+        },
+        {
+          "feedback_id": "SYN-BR2-08",
+          "topics": [
+            {
+              "code": "scent_preference",
+              "sentiment": "negative",
+              "severity": 1
+            }
+          ],
+          "repurchase_signal": "none"
+        }
+      ],
+      "differences": [
+        {
+          "feedback_id": "SYN-BR1-08",
+          "expected": {
+            "feedback_id": "SYN-BR1-08",
+            "topics": [
+              {
+                "code": "longevity_diffusion",
+                "sentiment": "negative",
+                "severity": 2
+              }
+            ],
+            "repurchase_signal": "none"
+          },
+          "actual": {
+            "feedback_id": "SYN-BR1-08",
+            "topics": [
+              {
+                "code": "longevity_diffusion",
+                "sentiment": "negative",
+                "severity": 2
+              },
+              {
+                "code": "scent_preference",
+                "sentiment": "negative",
+                "severity": 2
+              }
+            ],
+            "repurchase_signal": "none"
+          }
+        }
+      ],
+      "passed": false,
+      "calls": [
+        {
+          "batch": 1,
+          "attempt": 1,
+          "prompt_tokens": 2809,
+          "completion_tokens": 371,
+          "total_tokens": 3180,
+          "elapsed_seconds": 1.6689137909997953,
+          "error": null
+        }
+      ],
+      "call_count": 1,
+      "total_tokens": 3180,
+      "elapsed_seconds": 1.6793268340043142,
+      "usage_complete": true,
+      "review_items": [],
+      "unprocessed": [],
+      "errors": []
+    }
+  ],
+  "passed": false
+}
