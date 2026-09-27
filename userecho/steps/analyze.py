@@ -1,6 +1,11 @@
 """Deterministic topic statistics for validated classification outputs."""
 
 import math
+from pathlib import Path
+from typing import Literal, get_args
+
+import pandas as pd
+import yaml
 from collections import defaultdict
 from statistics import median
 
@@ -84,21 +89,12 @@ def topic_statistics(classifications: list[FeedbackClassification],
     return result
 
 
-# Only this module reads impact configuration; classification remains unchanged.
-from pathlib import Path
-from typing import Literal, get_args
-import hashlib
-
-import pandas as pd
-import yaml
-
 ROOT = Path(__file__).resolve().parents[2]
 IMPACT_PATH = ROOT / "config" / "impact.yaml"
-BAD_CASE_PATH = ROOT / "docs" / "bad_case_log.md"
 GOALS = ("satisfaction", "complaints", "repurchase")
 COLUMN_LABELS.update({
     "base_score": "基础分", "score_explanation": "打分与规则说明",
-    "path": "处理路径", "rule_violation": "规则冲突",
+    "path": "处理路径", "rule_violation": "规则冲突", "violation_reason": "冲突原因",
 })
 
 
@@ -110,6 +106,7 @@ class TopicAnalysis(TopicStatistics):
     path: str
     review_required: bool
     rule_violation: bool
+    violation_reason: str | None
 
 
 def load_impact(goal_type: str, path: Path = IMPACT_PATH) -> dict[str, int]:
@@ -118,39 +115,25 @@ def load_impact(goal_type: str, path: Path = IMPACT_PATH) -> dict[str, int]:
         raise ValueError("未知分析目标。")
     try:
         config = yaml.safe_load(path.read_text(encoding="utf-8"))
+        if not isinstance(config, dict) or config.get("status") != "approved":
+            raise ValueError()
         goals = config["goals"]
+        if not isinstance(goals, dict):
+            raise ValueError()
         if set(goals) != set(GOALS):
             raise ValueError()
         for values in goals.values():
-            if set(values) != set(get_args(TopicCode)) or any(
+            if not isinstance(values, dict) or set(values) != set(get_args(TopicCode)) or any(
                 type(v) is not int or not 1 <= v <= 3 for v in values.values()
             ):
                 raise ValueError()
         return dict(goals[goal_type])
     except (OSError, KeyError, TypeError, ValueError, yaml.YAMLError) as exc:
-        raise ValueError("影响分配置无效：每个分析目标必须包含十个主题的 1–3 整数分值。") from exc
-
-
-def record_rule_violation(feedback_ids: list[str], path: Path = BAD_CASE_PATH) -> None:
-    """Append a deduplicated audit event without logging feedback text or IDs."""
-    fingerprint = hashlib.sha256("\n".join(sorted(feedback_ids)).encode()).hexdigest()
-    marker = "<!-- preference-severity3:" + fingerprint + " -->"
-    text = path.read_text(encoding="utf-8") if path.exists() else "# Bad Case 日志\n"
-    if marker in text:
-        return
-    entry = (
-        "\n\n### 运行时规则冲突：scent_preference / severity=3\n\n" + marker + "\n\n"
-        f"检测到 {len(feedback_ids)} 条偏好主题 severity=3 提及，标记 rule_violation。"
-        "最低 P1 与偏好最高 P2 冲突，按项目负责人裁决优先保障最低 P1，risk_alert 独立保留。"
-        "只有符合样本量及负向提及数门槛时计算优先级；其余仅报警并人工复核。"
-        "原因候选为上游主题或严重度边界判断偏差，需人工核对；不擅自改写分类。\n"
-    )
-    path.write_text(text + entry, encoding="utf-8")
+        raise ValueError("影响分配置无效：必须为 approved，且每个分析目标包含十个主题的 1–3 整数分值。") from exc
 
 
 def analyze(classifications: list[FeedbackClassification], valid_sample_size: int,
-            goal_type: str = "satisfaction", *, impact_path: Path = IMPACT_PATH,
-            bad_case_log_path: Path = BAD_CASE_PATH) -> pd.DataFrame:
+            goal_type: str = "satisfaction", *, impact_path: Path = IMPACT_PATH) -> pd.DataFrame:
     """Aggregate final topics and apply the three paths without any LLM calls."""
     statistics = topic_statistics(classifications, valid_sample_size)
     impact = load_impact(goal_type, impact_path)
@@ -159,11 +142,6 @@ def analyze(classifications: list[FeedbackClassification], valid_sample_size: in
         violation_ids = [e.feedback_id for e in topic.evidence
                          if topic.topic_code == "scent_preference" and e.severity == 3]
         violation = bool(violation_ids)
-        if violation:
-            try:
-                record_rule_violation(violation_ids, bad_case_log_path)
-            except OSError as exc:
-                raise ValueError("无法写入规则冲突日志，请检查文件权限。") from exc
         priority = score = None
         review = violation or (topic.risk_alert and (topic.mention_count < 2 or valid_sample_size < 5))
         if valid_sample_size < 5:
@@ -185,6 +163,9 @@ def analyze(classifications: list[FeedbackClassification], valid_sample_size: in
                 base_level = 0 if score >= 8 else 1 if score >= 6 else 2 if score >= 4 else 3
                 level = min(base_level, 1)
                 rules.append("severity=3 最低 P1，优先于偏好上限")
+            if violation:
+                level = 1
+                rules.append("偏好与 severity=3 冲突，按负责人裁决固定 P1 并复核")
             priority = f"P{level}"
             explanation = f"F{topic.F} + S{topic.S} + I{impact[topic.topic_code]} = {score} → {priority}"
             if rules:
@@ -195,7 +176,8 @@ def analyze(classifications: list[FeedbackClassification], valid_sample_size: in
             path, explanation = "insufficient_evidence", "负向提及不足 2 条，不计算优先级"
         row = TopicAnalysis(**topic.model_dump(), I=impact[topic.topic_code],
             priority=priority, base_score=score, score_explanation=explanation, path=path,
-            review_required=review, rule_violation=violation)
+            review_required=review, rule_violation=violation,
+            violation_reason="scent_preference 与 severity=3 冲突，需人工核对主题及严重度" if violation else None)
         if valid_sample_size < 5:
             row.insufficient_evidence = True
         rows.append(row.model_dump())

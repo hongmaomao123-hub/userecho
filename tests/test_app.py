@@ -88,3 +88,67 @@ def test_rating_preview_formats_missing_without_mutating_data(missing):
     assert report == original_report
     assert report["rating_distribution"] == {"5": 1}
     assert app.table[1].value.to_dict("records") == [{"评分": "5", "反馈数": 1}]
+
+
+from userecho.classification_schema import FeedbackClassification
+from userecho.steps.classify import ClassificationResult
+
+
+@pytest.fixture(autouse=True)
+def prevent_page_tests_from_using_real_api():
+    with patch('userecho.steps.classify.create_client', side_effect=AssertionError('No real API in page tests')):
+        yield
+
+
+def upload_bytes(size):
+    return io.BytesIO(('feedback_id,feedback_text\n' + ''.join(f'{i},反馈原文\n' for i in range(size))).encode())
+
+
+def classified(fid, code='longevity_diffusion', severity=1):
+    return FeedbackClassification(feedback_id=str(fid), topics=[{
+        'code': code, 'sentiment': 'negative', 'severity': severity,
+        'source_span': '反馈原文', 'mention_type': 'asserted',
+    }], repurchase_signal='none')
+
+
+def test_insufficient_data_disables_formal_analysis():
+    with patch('streamlit.file_uploader', return_value=upload_bytes(4)), patch('userecho.steps.classify.classify') as classify_mock:
+        app = AppTest.from_file(str(APP_PATH)).run()
+        assert not app.exception and app.button[0].disabled
+        assert any('样本量不足，仅展示主题统计' in i.value for i in app.info)
+        classify_mock.assert_not_called()
+
+
+def test_classification_success_displays_topic_summary():
+    result = ClassificationResult(classifications=[classified(i) for i in range(5)])
+    with patch('streamlit.file_uploader', return_value=upload_bytes(5)), patch('userecho.steps.classify.classify', return_value=result) as classify_mock:
+        app = AppTest.from_file(str(APP_PATH)).run()
+        app.button[0].click().run()
+        assert not app.exception
+        assert any(s.value == '主题统计' for s in app.subheader)
+        table = next(d.value for d in app.dataframe if '主题代码' in d.value.columns)
+        assert table.iloc[0]['负向提及数（含正负并存）'] == 5
+        assert table.iloc[0]['主题代码'] == 'longevity_diffusion'
+        classify_mock.assert_called_once()
+
+
+def test_risk_alert_and_review_items_are_visible():
+    result = ClassificationResult(classifications=[classified(0, 'safety_discomfort', 3)],
+        review_items=[{'feedback_id':'1', 'reason':'source_span_not_in_feedback'}])
+    with patch('streamlit.file_uploader', return_value=upload_bytes(5)), patch('userecho.steps.classify.classify', return_value=result):
+        app = AppTest.from_file(str(APP_PATH)).run()
+        app.button[0].click().run()
+        assert not app.exception
+        assert {'风险警报', '分类人工复核清单', '主题人工复核清单'} <= {s.value for s in app.subheader}
+        assert any('需人工核实' in w.value for w in app.warning)
+        reviews = next(d.value for d in app.dataframe if '复核原因' in d.value.columns)
+        assert reviews.iloc[0]['复核原因'] == 'source_span_not_in_feedback'
+
+
+def test_api_failure_is_chinese_without_page_crash():
+    result = ClassificationResult(errors=['LLM 调用失败，请稍后重试。'])
+    with patch('streamlit.file_uploader', return_value=upload_bytes(5)), patch('userecho.steps.classify.classify', return_value=result):
+        app = AppTest.from_file(str(APP_PATH)).run()
+        app.button[0].click().run()
+        assert not app.exception
+        assert any('LLM 调用失败' in e.value for e in app.error)

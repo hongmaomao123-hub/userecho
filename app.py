@@ -72,10 +72,10 @@ if upload is not None:
         if st.session_state.get("classification_upload") != upload_key:
             st.session_state.pop("classification_result", None)
             st.session_state["classification_upload"] = upload_key
-        st.caption("影响分 I 当前为临时占位值 2，待项目负责人人工调整。")
+        st.caption("影响分 I 使用项目负责人批准的业务规则。")
         if report["analysis_mode"] == "summary_only":
             st.info("样本量不足，仅展示主题统计")
-        if st.button("开始分析", type="primary"):
+        if st.button("开始分析", type="primary", disabled=report["analysis_mode"] == "summary_only"):
             try:
                 load_impact(goal)
                 with st.spinner("正在分类反馈…"):

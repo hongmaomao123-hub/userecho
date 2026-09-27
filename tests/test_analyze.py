@@ -70,3 +70,92 @@ def test_duplicates_and_excess_classifications_rejected():
         topic_statistics([feedback(1), feedback(1)], 30)
     with pytest.raises(ValueError):
         topic_statistics([feedback(1)], 0)
+
+
+from pathlib import Path
+from unittest.mock import patch
+import yaml
+from userecho.steps.analyze import analyze, load_impact, IMPACT_PATH
+
+
+def test_approved_impact_values():
+    expected = {
+        'scent_mismatch': (3,3,3), 'scent_preference': (2,1,2),
+        'longevity_diffusion': (3,3,3), 'packaging_leak': (3,3,3),
+        'safety_discomfort': (3,3,3), 'price_value': (2,2,3),
+        'logistics': (2,3,2), 'appearance_usage': (2,2,2),
+        'service': (2,3,2), 'other': (1,1,1),
+    }
+    for i, goal in enumerate(('satisfaction', 'complaints', 'repurchase')):
+        assert load_impact(goal) == {code: values[i] for code, values in expected.items()}
+
+
+def test_overview_only_has_no_formal_priority():
+    row = analyze([feedback(1), feedback(2)], 4).iloc[0]
+    assert row['path'] == 'summary_only'
+    assert row['priority'] is None and row['base_score'] is None
+    assert row['insufficient_evidence']
+
+
+def test_negative_and_mixed_enter_priority():
+    row = analyze([feedback(1), feedback(2, sentiment='mixed', severity=2)], 30).iloc[0]
+    assert row['path'] == 'priority' and row['mention_count'] == 2
+    assert row['S'] == 1 and row['base_score'] == 6 and row['priority'] == 'P1'
+    assert not row['insufficient_evidence']
+
+
+@pytest.mark.parametrize('code,severity', [('safety_discomfort', 1), ('packaging_leak', 3)])
+def test_low_frequency_risk_path(code, severity):
+    row = analyze([feedback(1, code, severity=severity)], 30).iloc[0]
+    assert row['path'] == 'risk_only' and row['risk_alert']
+    assert row['priority'] is None and row['review_required'] and row['insufficient_evidence']
+
+
+def test_low_frequency_without_risk_has_insufficient_evidence():
+    row = analyze([feedback(1)], 30).iloc[0]
+    assert row['path'] == 'insufficient_evidence' and row['insufficient_evidence']
+    assert row['priority'] is None and not row['risk_alert'] and not row['review_required']
+
+
+@pytest.mark.parametrize('code,severities', [('safety_discomfort', [1,1]), ('other', [1,3])])
+def test_safety_and_severity_three_enforce_minimum_p1(code, severities):
+    row = analyze([feedback(i, code, severity=s) for i,s in enumerate(severities)], 200).iloc[0]
+    assert row['base_score'] < 6 and row['priority'] == 'P1' and row['risk_alert']
+
+
+def test_preference_is_capped_at_p2():
+    row = analyze([feedback(i, 'scent_preference', severity=2) for i in range(2)], 5).iloc[0]
+    assert row['base_score'] == 7 and row['priority'] == 'P2'
+    assert not row['rule_violation'] and row['violation_reason'] is None
+
+
+def test_preference_severity_three_conflict_is_exactly_p1_without_document_writes():
+    path = Path(__file__).resolve().parents[1] / 'docs' / 'bad_case_log.md'
+    before = path.read_bytes()
+    with patch.object(Path, 'write_text', side_effect=AssertionError('No document writes')), patch.object(
+        Path, 'write_bytes', side_effect=AssertionError('No document writes')
+    ):
+        row = analyze([feedback(i, 'scent_preference', severity=3) for i in range(2)], 5).iloc[0]
+    assert row['base_score'] == 8 and row['priority'] == 'P1'
+    assert row['review_required'] and row['rule_violation'] and row['risk_alert']
+    assert 'severity=3' in row['violation_reason']
+    assert path.read_bytes() == before
+
+
+@pytest.mark.parametrize('defect', ['goal', 'topic', 'low', 'high', 'placeholder'])
+def test_invalid_or_unapproved_impact_fails(tmp_path, defect):
+    config = yaml.safe_load(IMPACT_PATH.read_text())
+    if defect == 'goal':
+        del config['goals']['complaints']
+    elif defect == 'topic':
+        del config['goals']['satisfaction']['other']
+    elif defect == 'placeholder':
+        config['status'] = 'placeholder'
+    else:
+        config['goals']['satisfaction']['other'] = 0 if defect == 'low' else 4
+    path = tmp_path / 'impact.yaml'
+    path.write_text(yaml.safe_dump(config))
+    with pytest.raises(ValueError, match='影响分配置无效'):
+        load_impact('satisfaction', path)
+    with pytest.raises(ValueError, match='影响分配置无效'):
+        analyze([feedback(1)], 30, impact_path=path)

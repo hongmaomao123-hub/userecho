@@ -1,37 +1,37 @@
-# 临时占位值，待项目负责人人工调整
+# 项目负责人批准的 MVP 业务规则，不是模型预测或评测指标
 version: '1.3'
-status: placeholder
+status: approved
 goals:
   satisfaction:
-    scent_mismatch: 2
+    scent_mismatch: 3
     scent_preference: 2
-    longevity_diffusion: 2
-    packaging_leak: 2
-    safety_discomfort: 2
+    longevity_diffusion: 3
+    packaging_leak: 3
+    safety_discomfort: 3
     price_value: 2
     logistics: 2
     appearance_usage: 2
     service: 2
-    other: 2
+    other: 1
   complaints:
-    scent_mismatch: 2
-    scent_preference: 2
-    longevity_diffusion: 2
-    packaging_leak: 2
-    safety_discomfort: 2
+    scent_mismatch: 3
+    scent_preference: 1
+    longevity_diffusion: 3
+    packaging_leak: 3
+    safety_discomfort: 3
     price_value: 2
-    logistics: 2
+    logistics: 3
     appearance_usage: 2
-    service: 2
-    other: 2
+    service: 3
+    other: 1
   repurchase:
-    scent_mismatch: 2
+    scent_mismatch: 3
     scent_preference: 2
-    longevity_diffusion: 2
-    packaging_leak: 2
-    safety_discomfort: 2
-    price_value: 2
+    longevity_diffusion: 3
+    packaging_leak: 3
+    safety_discomfort: 3
+    price_value: 3
     logistics: 2
     appearance_usage: 2
     service: 2
-    other: 2
+    other: 1

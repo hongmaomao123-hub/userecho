@@ -112,3 +112,14 @@ SDK 客户端 max_retries=0，重试由分类模块统一计数，每批最多�
 - 由应用层统一管理重试，避免双层重试导致请求次数和成本不可控。每次调用 chat.completions.create 都增加一次 call_count，初次请求和重试均计数，仍受单批最多三次、任务最多 15 次的预算约束。此计数指 SDK 调用尝试数，不声称网络连接失败时服务端必然收到请求；外部注入客户端也应遵守关闭内部重试的契约。
 - 保留已有客户端参数 Mock 测试，补充经 create_client 创建 Mock 客户端后临时错误重试成功、重试耗尽两种测试，验证构造参数 max_retries=0，call_count 与实际 create 调用次数一致，无真实网络请求。本轮不调整业务重试逻辑。
 - Round 2 原文文件改名为 data/dev/synthetic_calibration_round2.csv，统一合成校准数据定位；同步实验日志及三份 JSON 记录中的路径。文件内容与 SHA-256 不变；历史预测、token、耗时及 Prompt 指纹不变。本次历史记录仅迁移路径，未重新执行实验，也未访问 data/eval。
+
+## 2026-09-27 Impact 定值与最小收尾（负责人批准）
+
+- 保持 goal_type 不变：satisfaction（满意度分析）关注当前体验和满意度；complaints（主要抱怨）关注可归因、可处理的主要抱怨；repurchase（复购相关）关注再次购买决策。不映射为产品改进或运营履约。
+- Impact 由项目负责人制定，是业务规则，不是模型预测结果或评测指标。3 分表示直接影响当前分析目标，2 分表示明确但次级影响，1 分表示影响较弱、主观性强或无法明确归因。config/impact.yaml 状态改为 approved，替代临时统一取 2。
+- 按 satisfaction / complaints / repurchase 顺序：scent_mismatch=3/3/3，scent_preference=2/1/2，longevity_diffusion=3/3/3，packaging_leak=3/3/3，safety_discomfort=3/3/3，price_value=2/2/3，logistics=2/3/2，appearance_usage=2/2/2，service=2/3/2，other=1/1/1。
+- scent_preference 影响体验和复购，但主观性强、可干预程度低，complaints=1，通常继续适用最高 P2。logistics、service 在 complaints 下为 3、repurchase 下为 2，因为主要反映渠道或履约体验，不必然代表放弃产品。商品承诺落差、核心留香扩散、漏液和安全直接关联三个目标；价格更直接关联复购；外观操作属于明确但次级影响；other 无稳定业务含义。
+- 这些分值是 MVP 业务假设，可据真实业务数据调整，本项目不进行权重学习、AHP、复杂参数优化或敏感性分析。
+- 当负向提及数及样本量已满足排序条件时，scent_preference 与 severity=3 冲突固定输出 P1，同时 review_required=true、rule_violation=true、返回 violation_reason。此处固定 P1 取代先前可能保留 P0 的实现；样本不足时仍不生成正式优先级。
+- analyze 不再写入 bad_case_log 或其他文档，只返回冲突信息，日志由人工审查流程决定是否更新。本条替代此前运行时自动追加 Bad Case 的决定。
+- 本轮提到的 overview_only 对应现有 summary_only（1–4 条）语义，保留现有字段值，不引入新枚举；页面样本不足禁用正式分析，显示“样本量不足，仅展示主题统计”。
