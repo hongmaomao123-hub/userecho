@@ -123,3 +123,17 @@ SDK 客户端 max_retries=0，重试由分类模块统一计数，每批最多�
 - 当负向提及数及样本量已满足排序条件时，scent_preference 与 severity=3 冲突固定输出 P1，同时 review_required=true、rule_violation=true、返回 violation_reason。此处固定 P1 取代先前可能保留 P0 的实现；样本不足时仍不生成正式优先级。
 - analyze 不再写入 bad_case_log 或其他文档，只返回冲突信息，日志由人工审查流程决定是否更新。本条替代此前运行时自动追加 Bad Case 的决定。
 - 本轮提到的 overview_only 对应现有 summary_only（1–4 条）语义，保留现有字段值，不引入新枚举；页面样本不足禁用正式分析，显示“样本量不足，仅展示主题统计”。
+
+## 2026-09-29：真实小样本参考标签的生成与评测口径
+
+本轮真实数据共 13 条。初始参考标签由 Codex 根据反馈正文、现有主题表和标注规范辅助生成；2026-09-29 由 Codex 再次逐条辅助审核，项目负责人明确接受本轮提交的修订组。尚不能据此声称项目负责人已亲自逐条复核全部 13 条，也不将其描述为严格独立盲标。
+
+负责人确认的修订：R004_P1 保留 scent_preference/positive/空、longevity_diffusion/negative/1、price_value/positive/空；R013_P1 的 longevity_diffusion 改为 positive/空；R008_P1 改为 other/neutral/空；R009_P1 保留 other/positive/空。复购信号均不因上述修订改变。R008_P1 属本轮负责人针对泛化评价的裁决，不反向改写现有标注规范或 Prompt。
+
+R004_P1 的本轮裁决取代 2026-09-28 的三主题选择。R023_P1 保留负责人此前明确批准的 longevity_diffusion/negative/1、repurchase_signal=none；须披露其与相同文本的 SYN-BR1-08 历史 severity=2 裁决不一致，不能宣称所有参考标签完全遵循统一且无例外的冻结规则。本轮不修改开发集、分类逻辑、Prompt、主题表或标注规范。
+
+本轮后续结果仅用于检查系统预测与负责人裁决后的参考标签之间的一致性，以及验证真实数据端到端评测流程是否可运行。对外不使用“正式准确率”“独立评测集”或“生产级效果”等表述。完成负责人本人逐条复核前，使用“由 LLM 辅助生成与复核、项目负责人裁决争议项的参考标签一致性检查”。
+
+当前参考标签不存在 negative/mixed 的 safety_discomfort，也不存在 severity=3，因此 High-risk Recall 分母为 0，应报告为 N/A；同时报告 system_high_risk_count。风险识别能力仅可由开发集案例和自动化测试提供有限验证，不以本轮真实小样本证明。
+
+人工处理时间：N/A（本轮未记录）。本次未运行真实评测，未生成或宣称正式指标。标签修订后重新生成两个 CSV 的 SHA-256 校验和。
