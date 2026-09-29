@@ -22,3 +22,26 @@ Claude Code 后续只负责审查和提出发现，不直接修改日志；由 C
 | severity 待确认观察 | SYN-BR1-04 本次为 longevity_diffusion / mixed / 2，与教学讨论值 1 不同 | 无逐条旧输出，不认定为已证实回归；等待负责人裁决，不继续调 Prompt |
 
 具体预测、token、耗时和可比较子集指标见 experiment_log；完整 pytest 为 135 passed，其中本轮新增 3 项 Prompt 规则测试。
+
+## 2026-09-27：Bad Case #6 真实开发集短文本情绪偏差
+
+- 来源：项目负责人本轮提供的真实开发集回归观察，本轮未重新调用 API。
+- 输入：data/dev/real_dev_20260927.csv 中 R003_P1，文本“不错”。
+- 实际：other / positive。
+- 期望：按本轮负责人确认的当前信息不足规则，other / neutral。
+- 影响：主题标签 other 一致，偏差发生在 sentiment，不影响主题标签。
+- 根因：尚未验证；不将本次记录扩展为其他短文本的规则变更。
+- 处理：本轮只记录，不修改 Prompt、taxonomy、schema 或业务逻辑。
+- 修复后是否复现：尚未修复，未进行修复后验证。
+
+## 2026-09-29：参考标签一致性检查差异（#7–#9）
+
+本节只记录 feedback_id 与主题差异，不包含反馈原文；gold 指经 AI 辅助生成、审核及项目负责人边界裁决的参考标签。
+
+| # | feedback_id | gold_topics | predicted_topics | 类型 |
+|---|---|---|---|---|
+| 7 | R004_P1 | longevity_diffusion、price_value、scent_preference | longevity_diffusion、scent_mismatch、scent_preference | 邻近主题混淆及遗漏 |
+| 8 | R008_P1 | other | scent_preference | 信息不足反馈被过度具体分类 |
+| 9 | R023_P1 | longevity_diffusion | longevity_diffusion、safety_discomfort | 额外安全主题及潜在风险误报候选 |
+
+评测完成后不再根据这些案例调整 Prompt；Bad Case 仅作为系统限制和后续优化方向。上述类型描述预测与参考标签的差异，不作已验证的根因判断；潜在风险误报候选不等于已完成安全事实核实。本轮不修复、不重跑、不修改分类或分析规则。

@@ -147,3 +147,57 @@ Round 2 只有 08 改变（删除 scent_mismatch，偏好 severity 2→1），�
 结论：未达到“五条案例连续三轮均与裁决一致”的通过标准。本次没有轮间波动，但存在重复出现的错误；temperature=0 不等于保证正确。三轮共调用 3 次、9540 tokens，均通过 schema 校验且无重试、无未处理项。BR1-08 的额外偏好主题再次出现，故此前一次未复现不代表问题消除；本轮只报告，不进一步调 Prompt。
 
 离线验证：新增 test_temperature_zero_is_sent_for_every_batch_and_retry，Mock API 检查每批及重试均传 temperature=0、没有其他采样参数。完整 pytest -q：136 passed。未读取 data/eval，未执行 git add、commit 或 push。
+
+## 2026-09-27：真实开发集端到端回归记录
+
+来源：项目负责人本轮提供的已运行结果；本轮仅登记，不重新调用 API，不读取原始反馈或 eval 数据。
+
+| 项目 | 记录值 |
+|---|---|
+| 数据 | data/dev/real_dev_20260927.csv |
+| 样本量 | 11 |
+| analysis goal | complaints |
+| classifications | 11 |
+| review_items | 0 |
+| unprocessed | 0 |
+| API calls | 1 |
+| total_tokens | 4181 |
+| elapsed_seconds | 4.42 |
+| 风险警报 | 0 |
+
+已知问题：R003_P1 的“不错”输出 other/positive，本轮负责人确认预期为 other/neutral；主题标签不受影响，详见 Bad Case #6。本轮只记录，不修改分类 Prompt、taxonomy、schema 或业务逻辑。
+
+结论：小样本真实数据工作流回归通过。
+
+## 2026-09-29：真实小样本参考标签一致性检查
+
+类型：真实小样本参考标签一致性检查。项目负责人确认这是唯一一次正式参考标签一致性检查；本节仅登记既有结果，不重新执行评测或调用 API。
+
+标签口径：AI辅助生成并审核，由项目负责人完成边界裁决；不是严格独立盲标。数值来源为 `outputs/reference_consistency_20260929.json` 与负责人提供的记录；Micro Precision = TP / (TP + FP)，Micro Recall = TP / (TP + FN)。
+
+| 指标 | 值 |
+|---|---|
+| eval_sample_size | 13 |
+| classifications | 13 |
+| review_items | 0 |
+| unprocessed | 0 |
+| Topic micro-F1 | 0.9019607843 |
+| Micro Precision | 0.8846153846 |
+| Micro Recall | 0.92 |
+| TP | 23 |
+| FP | 3 |
+| FN | 2 |
+| system_high_risk_count | 1 |
+| High-risk Recall | N/A：参考标签无高风险正样本，分母为 0 |
+| Evidence Support Rate | N/A：结论级 evidence.py 未实现 |
+| API calls | 3 |
+| total_tokens | 5297 |
+| elapsed_seconds | 12.8293 |
+
+主题指标按 feedback_id 对齐，以主题无序集合累计；review_items 和 unprocessed 按空预测计入，不能排除失败条目。13 + 0 + 0 = 13，结果桶数量守恒。不计算 sentiment、severity 或 repurchase 的 F1。
+
+系统识别的高风险数量按反馈粒度计数，不代替 High-risk Recall；没有参考高风险正样本时无法据此判断召回能力。现有 source_span 是进入最终分类前的硬校验，不等同于报告结论的 Evidence Support Rate。人工处理时间未记录，不做耗时优劣对照。
+
+主题差异仅以 ID 和主题代码记入 Bad Case #7–#9。评测完成后不再根据这些案例调整 Prompt；只作为系统限制和后续优化方向。此次文档登记未读取任何评测 CSV，未变更标签、checksum 或结果文件。
+
+固定限制：n=13，仅用于小样本工作流可行性及参考标签一致性检查，不代表生产环境表现。
