@@ -10,3 +10,6 @@ data/raw/
 outputs/
 *.swp
 *.swo
+data/eval/real_*.csv
+data/eval/real_eval_labels_*.csv
+data/dev/real_*.csv
